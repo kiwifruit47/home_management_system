@@ -12,10 +12,13 @@ public class Apartment extends BaseEntity {
     private int apartment_number;
     private BigDecimal area;
     private int pets;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Building building;
     @ManyToMany(mappedBy = "apartments")
     private Set<Owner> owners;
     @OneToMany(mappedBy = "apartment")
     private Set<Occupant> occupants;
+    @OneToMany(mappedBy = "apartment")
+    @Column(name = "monthly_apartment_taxes")
+    private Set<MonthlyApartmentTax> monthlyApartmentTaxes;
 }
