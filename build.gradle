@@ -19,6 +19,8 @@ dependencies {
     implementation("org.hibernate.validator:hibernate-validator-annotation-processor:8.0.1.Final")
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+    // https://mvnrepository.com/artifact/com.h2database/h2
+    testImplementation("com.h2database:h2:2.2.224")
 }
 
 test {

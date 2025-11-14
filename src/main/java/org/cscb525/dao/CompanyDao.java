@@ -1,6 +1,8 @@
 package org.cscb525.dao;
 
 import org.cscb525.config.SessionFactoryUtil;
+import org.cscb525.dto.CompanyDto;
+import org.cscb525.dto.CreateCompanyDto;
 import org.cscb525.entity.Company;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -65,5 +67,24 @@ public class CompanyDao {
         }
     }
 
+    public static void createCompanyDto(CreateCompanyDto createCompanyDto) {
+        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
+            Company company = new Company();
+            company.setName(createCompanyDto.getName());
+            Transaction transaction = session.beginTransaction();
+            session.persist(company);
+            transaction.commit();
+        }
+    }
+
+    public static void updateCompanyDto(CompanyDto companyDto) {
+        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
+            Company company = new Company();
+            company.setName(companyDto.getName());
+            Transaction transaction = session.beginTransaction();
+            session.merge(company);
+            transaction.commit();
+        }
+    }
 
 }

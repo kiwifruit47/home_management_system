@@ -1,12 +1,18 @@
 package org.cscb525.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import java.util.Set;
 
 @Entity
 @Table(name = "company")
 public class Company extends BaseEntity{
+    @NotBlank(message = "Company name cannot be blank")
+    @Pattern(regexp = "^[A-Z][a-zA-Z]*$", message = "Company name must start with a capital letter and consist only of letters")
     private String name;
     @OneToMany(mappedBy = "company")
     private Set<Employee> employees;
@@ -14,7 +20,7 @@ public class Company extends BaseEntity{
     public Company() {
     }
 
-    public Company(String name) {
+    public Company(@Valid String name) {
         this.name = name;
     }
 
@@ -22,7 +28,7 @@ public class Company extends BaseEntity{
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(@Valid String name) {
         this.name = name;
     }
 
