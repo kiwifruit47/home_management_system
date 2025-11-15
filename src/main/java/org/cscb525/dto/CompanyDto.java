@@ -1,6 +1,5 @@
 package org.cscb525.dto;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
@@ -9,7 +8,7 @@ public class CompanyDto {
     @Pattern(regexp = "^[A-Z][a-zA-Z]*$", message = "Company name must start with a capital letter and consist only of letters")
     private String name;
 
-    public CompanyDto(@Valid String name) {
+    public CompanyDto(String name) {
         this.name = name;
     }
 
@@ -17,7 +16,7 @@ public class CompanyDto {
         return name;
     }
 
-    public void setName(@Valid String name) {
+    public void setName(String name) {
         this.name = name;
     }
 

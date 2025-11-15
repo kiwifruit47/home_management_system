@@ -1,5 +1,6 @@
 package org.cscb525.dao;
 
+import jakarta.validation.Valid;
 import org.cscb525.config.SessionFactoryUtil;
 import org.cscb525.dto.CompanyDto;
 import org.cscb525.dto.CreateCompanyDto;
@@ -10,7 +11,7 @@ import org.hibernate.Transaction;
 import java.util.List;
 
 public class CompanyDao {
-    public static void createCompany(Company company) {
+    public static void createCompany(@Valid Company company) {
         try(Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
             session.persist(company);
@@ -18,7 +19,7 @@ public class CompanyDao {
         }
     }
 
-    public static void updateCompany(Company company) {
+    public static void updateCompany(@Valid Company company) {
         try(Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
             session.merge(company);
@@ -67,7 +68,7 @@ public class CompanyDao {
         }
     }
 
-    public static void createCompanyDto(CreateCompanyDto createCompanyDto) {
+    public static void createCompanyDto(@Valid CreateCompanyDto createCompanyDto) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             Company company = new Company();
             company.setName(createCompanyDto.getName());
@@ -77,7 +78,7 @@ public class CompanyDao {
         }
     }
 
-    public static void updateCompanyDto(CompanyDto companyDto) {
+    public static void updateCompanyDto(@Valid CompanyDto companyDto) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             Company company = new Company();
             company.setName(companyDto.getName());

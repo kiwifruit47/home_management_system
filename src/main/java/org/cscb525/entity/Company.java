@@ -1,10 +1,8 @@
 package org.cscb525.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 
 import java.util.Set;
 
@@ -20,7 +18,7 @@ public class Company extends BaseEntity{
     public Company() {
     }
 
-    public Company(@Valid String name) {
+    public Company(String name) {
         this.name = name;
     }
 
@@ -28,7 +26,7 @@ public class Company extends BaseEntity{
         return name;
     }
 
-    public void setName(@Valid String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
