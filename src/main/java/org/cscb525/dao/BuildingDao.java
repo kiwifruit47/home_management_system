@@ -1,5 +1,6 @@
 package org.cscb525.dao;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.cscb525.config.SessionFactoryUtil;
 import org.cscb525.entity.Building;
 import org.hibernate.Session;
@@ -27,20 +28,18 @@ public class BuildingDao {
     public static Building getBuildingById(long id) {
         Building building;
         try(Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            Transaction transaction = session.beginTransaction();
             building = session.get(Building.class, id);
-            transaction.commit();
         }
+        if (building == null)
+            throw new EntityNotFoundException("Building with id " + id + " not found");
         return building;
     }
 
     public static List<Building> getAllBuildings() {
         List<Building> buildings;
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            Transaction transaction = session.beginTransaction();
             buildings = session.createQuery("select b from Building b", Building.class)
                     .getResultList();
-            transaction.commit();
         }
         return buildings;
     }
@@ -48,18 +47,26 @@ public class BuildingDao {
     public static void deleteBuilding(long id) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
-            session.createQuery("update Building b set b.deleted = true where b.id = :id")
+            int updatedRows = session.createQuery("update Building b set b.deleted = true where b.id = :id")
                     .setParameter("id", id)
                     .executeUpdate();
+            if (updatedRows == 0) {
+                transaction.rollback();
+                throw new EntityNotFoundException("Building with id " + id + " not found");
+            }
             transaction.commit();
         }
     }
     public static void restoreBuilding(long id) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
-            session.createQuery("update Building b set b.deleted = false where b.id = :id")
+            int updatedRows = session.createQuery("update Building b set b.deleted = false where b.id = :id")
                     .setParameter("id", id)
                     .executeUpdate();
+            if (updatedRows == 0) {
+                transaction.rollback();
+                throw new EntityNotFoundException("Building with id " + id + " not found.");
+            }
             transaction.commit();
         }
     }

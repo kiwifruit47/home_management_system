@@ -1,13 +1,17 @@
 package org.cscb525.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.Set;
 
 @Entity
 @Table(name = "owner")
 public class Owner extends BaseEntity {
+    @NotBlank(message = "Owner name cannot be blank")
     private String name;
+    @NotNull
     @ManyToMany
     @JoinTable(
             name = "owner_apartment",

@@ -1,8 +1,11 @@
 package org.cscb525.dto;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
 
 public class EmployeeBuildingsDto {
+    @NotNull
     private EmployeeDto employee;
     private List<BuildingDto> buildings;
 

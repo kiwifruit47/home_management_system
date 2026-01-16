@@ -1,6 +1,9 @@
 package org.cscb525.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class EmployeeDto {
+    @NotBlank(message = "Employee name cannot be blank")
     private String name;
 
     public EmployeeDto(String name) {

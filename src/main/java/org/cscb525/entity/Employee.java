@@ -4,13 +4,17 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.Set;
 
 @Entity
 @Table(name = "employee")
 public class Employee extends BaseEntity {
+    @NotBlank(message = "Employee name cannot be blank")
     private String name;
+    @NotNull
     @ManyToOne
     private Company company;
     @OneToMany(mappedBy = "employee")

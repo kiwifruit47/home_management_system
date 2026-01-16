@@ -1,6 +1,9 @@
 package org.cscb525.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 import java.util.Set;
@@ -8,12 +11,20 @@ import java.util.Set;
 @Entity
 @Table(name = "building")
 public class Building extends BaseEntity {
+    @NotBlank(message = "Address cannot be blank")
     private String address;
+    @NotNull
+    @Positive
     private int floors;
+    @NotNull
+    @Positive
     @Column(name = "monthly_tax_per_person")
     private BigDecimal monthlyTaxPerPerson;
+    @NotNull
+    @Positive
     @Column(name = "monthly_tax_per_pet")
     private BigDecimal monthlyTaxPerPet;
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     private Employee employee;
     @OneToMany(mappedBy = "building")

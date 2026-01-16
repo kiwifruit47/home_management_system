@@ -1,24 +1,49 @@
 package org.cscb525.dao;
 
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import org.cscb525.config.SessionFactoryUtil;
 import org.cscb525.entity.Apartment;
+import org.cscb525.entity.Building;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import java.util.List;
 
 public class ApartmentDao {
-    public static void createApartment(Apartment apartment) {
+
+    //apartment can't be persisted if Building doesn't exist in the DB
+    public static void createApartment(@Valid Apartment apartment) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
+            Building building = session.get(
+                    Building.class,
+                    apartment.getBuilding().getId()
+            );
+
+            if (building == null) {
+                throw new EntityNotFoundException(
+                        "Building with id " + apartment.getBuilding().getId() + " does not exist."
+                );
+            }
             session.persist(apartment);
             transaction.commit();
         }
     }
 
-    public static void updateApartment(Apartment apartment) {
+    public static void updateApartment(@Valid Apartment apartment) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
+            Building building = session.get(
+                    Building.class,
+                    apartment.getBuilding().getId()
+            );
+
+            if (building == null) {
+                throw new EntityNotFoundException(
+                        "Building with id " + apartment.getBuilding().getId() + " does not exist."
+                );
+            }
             session.merge(apartment);
             transaction.commit();
         }
@@ -27,20 +52,18 @@ public class ApartmentDao {
     public static Apartment getApartmentById(long id) {
         Apartment apartment;
         try(Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            Transaction transaction = session.beginTransaction();
             apartment = session.get(Apartment.class, id);
-            transaction.commit();
         }
+        if (apartment == null)
+            throw new EntityNotFoundException("Apartment with id " + id + " not found.");
         return apartment;
     }
 
     public static List<Apartment> getAllApartments() {
         List<Apartment> apartments;
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            Transaction transaction = session.beginTransaction();
             apartments = session.createQuery("select a from Apartment a", Apartment.class)
                     .getResultList();
-            transaction.commit();
         }
         return apartments;
     }
@@ -48,18 +71,26 @@ public class ApartmentDao {
     public static void deleteApartment(long id) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
-            session.createQuery("update Apartment a set a.deleted = true where a.id = :id")
+            int updatedRows = session.createQuery("update Apartment a set a.deleted = true where a.id = :id")
                     .setParameter("id", id)
                     .executeUpdate();
+            if (updatedRows == 0) {
+                transaction.rollback();
+                throw new EntityNotFoundException("Apartment with id " + id + " not found.");
+            }
             transaction.commit();
         }
     }
     public static void restoreApartment(long id) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
-            session.createQuery("update Apartment a set a.deleted = false where a.id = :id")
+            int updatedRows = session.createQuery("update Apartment a set a.deleted = false where a.id = :id")
                     .setParameter("id", id)
                     .executeUpdate();
+            if (updatedRows == 0) {
+                transaction.rollback();
+                throw new EntityNotFoundException("Apartment with id " + id + " not found.");
+            }
             transaction.commit();
         }
     }

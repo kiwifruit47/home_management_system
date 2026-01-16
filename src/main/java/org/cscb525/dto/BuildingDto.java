@@ -1,11 +1,21 @@
 package org.cscb525.dto;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+
 import java.math.BigDecimal;
 
 public class BuildingDto {
+    @NotNull
     private String address;
+    @NotNull
+    @Positive
     private int floors;
+    @NotNull
+    @Positive
     private BigDecimal monthlyTaxPerPerson;
+    @NotNull
+    @Positive
     private BigDecimal monthlyTaxPerPet;
 
     public BuildingDto(String address, int floors, BigDecimal monthlyTaxPerPerson, BigDecimal monthlyTaxPerPet) {

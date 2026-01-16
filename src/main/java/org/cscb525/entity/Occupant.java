@@ -1,14 +1,22 @@
 package org.cscb525.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 @Entity
 @Table(name = "occupant")
 public class Occupant extends BaseEntity {
+    @NotNull
+    @Positive
     private int age;
+    @NotBlank(message = "Occupant name cannot be blank")
     private String name;
+    @NotNull
     @Column(name = "uses_elevator")
-    private boolean usesElevator;
+    private boolean usesElevator = true;
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     private Apartment apartment;
 
