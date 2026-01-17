@@ -1,14 +1,12 @@
-package org.cscb525.dto;
+package org.cscb525.dto.employee;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 
-public class CompanyDto {
-    @NotBlank(message = "Company name cannot be blank")
-    @Pattern(regexp = "^[A-Z][a-zA-Z]*$", message = "Company name must start with a capital letter and consist only of letters")
+public class EmployeeDto {
+    @NotBlank(message = "Employee name cannot be blank")
     private String name;
 
-    public CompanyDto(String name) {
+    public EmployeeDto(String name) {
         this.name = name;
     }
 
@@ -22,7 +20,7 @@ public class CompanyDto {
 
     @Override
     public String toString() {
-        return "CompanyDto{" +
+        return "EmployeeDto{" +
                 "name='" + name + '\'' +
                 '}';
     }

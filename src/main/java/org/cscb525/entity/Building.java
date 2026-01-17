@@ -33,12 +33,11 @@ public class Building extends BaseEntity {
     public Building() {
     }
 
-    public Building(String address, int floors, BigDecimal monthlyTaxPerPerson, BigDecimal monthlyTaxPerPet, Employee employee, Set<Apartment> apartments) {
+    public Building(String address, int floors, BigDecimal monthlyTaxPerPerson, BigDecimal monthlyTaxPerPet, Set<Apartment> apartments) {
         this.address = address;
         this.floors = floors;
         this.monthlyTaxPerPerson = monthlyTaxPerPerson;
         this.monthlyTaxPerPet = monthlyTaxPerPet;
-        this.employee = employee;
         this.apartments = apartments;
     }
 

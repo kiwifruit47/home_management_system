@@ -1,7 +1,11 @@
 package org.cscb525.dao;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import org.cscb525.config.SessionFactoryUtil;
+import org.cscb525.entity.Apartment;
 import org.cscb525.entity.Building;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -68,6 +72,19 @@ public class BuildingDao {
                 throw new EntityNotFoundException("Building with id " + id + " not found.");
             }
             transaction.commit();
+        }
+    }
+
+
+    public static List<Apartment> getAllApartmentsByBuilding(Building building) {
+        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<Apartment> cr = cb.createQuery(Apartment.class);
+            Root<Apartment> root = cr.from(Apartment.class);
+
+            cr.select(root).where(cb.equal(root.get("building"), building));
+
+            return session.createQuery(cr).getResultList();
         }
     }
 }

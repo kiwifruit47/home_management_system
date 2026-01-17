@@ -1,13 +1,18 @@
 package org.cscb525.dao;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import jakarta.validation.Valid;
 import org.cscb525.config.SessionFactoryUtil;
 import org.cscb525.entity.Apartment;
 import org.cscb525.entity.Building;
+import org.cscb525.entity.MonthlyApartmentTax;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class ApartmentDao {
@@ -94,4 +99,16 @@ public class ApartmentDao {
             transaction.commit();
         }
     }
+
+    public static List<MonthlyApartmentTax> getAllMonthlyApartmentTaxesByApartment(Apartment apartment) {
+        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<MonthlyApartmentTax> cr = cb.createQuery(MonthlyApartmentTax.class);
+            Root<MonthlyApartmentTax> root = cr.from(MonthlyApartmentTax.class);
+
+            cr.select(root).where(cb.equal(root.get("apartment"), apartment));
+            return session.createQuery(cr).getResultList();
+        }
+    }
+
 }

@@ -1,19 +1,18 @@
-package org.cscb525.dto;
+package org.cscb525.dto.employee;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
-import java.util.List;
-
-public class CompanyEmployeesDto {
+public class EmployeeCompanyDto {
     @NotBlank(message = "Company name cannot be blank")
     @Pattern(regexp = "^[A-Z][a-zA-Z]*$", message = "Company name must start with a capital letter and consist only of letters")
     private String companyName;
-    private List<EmployeeDto> employees;
+    @NotBlank(message = "Employee name cannot be blank")
+    private String employeeName;
 
-    public CompanyEmployeesDto(String companyName, List<EmployeeDto> employees) {
+    public EmployeeCompanyDto(String companyName, String employeeName) {
         this.companyName = companyName;
-        this.employees = employees;
+        this.employeeName = employeeName;
     }
 
     public String getCompanyName() {
@@ -24,19 +23,19 @@ public class CompanyEmployeesDto {
         this.companyName = companyName;
     }
 
-    public List<EmployeeDto> getEmployees() {
-        return employees;
+    public String getEmployeeName() {
+        return employeeName;
     }
 
-    public void setEmployees(List<EmployeeDto> employees) {
-        this.employees = employees;
+    public void setEmployeeName(String employeeName) {
+        this.employeeName = employeeName;
     }
 
     @Override
     public String toString() {
-        return "CompanyEmployeesDto{" +
+        return "EmployeeCompanyDto{" +
                 "companyName='" + companyName + '\'' +
-                ", employees=" + employees +
+                ", employeeName='" + employeeName + '\'' +
                 '}';
     }
 }

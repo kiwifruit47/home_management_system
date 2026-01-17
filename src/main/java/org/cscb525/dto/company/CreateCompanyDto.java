@@ -1,4 +1,4 @@
-package org.cscb525.dto;
+package org.cscb525.dto.company;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
