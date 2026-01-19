@@ -1,30 +1,29 @@
 package org.cscb525.dto.employee;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import org.cscb525.dto.BuildingDto;
+import jakarta.validation.constraints.PositiveOrZero;
 
-import java.util.List;
+public class EmployeeBuildingCountDto {
+    @NotBlank(message = "Employee name cannot be blank")
+    private final String name;
+    @PositiveOrZero
+    private final int buildings;
 
-public class EmployeeBuildingsDto {
-    @NotNull
-    private String name;
-    @Positive
-    private int buildings;
-
-    public EmployeeBuildingsDto(String name, int buildings) {
+    public EmployeeBuildingCountDto(String name, int buildings) {
         this.name = name;
         this.buildings = buildings;
     }
 
-    public String getName() {
+    public @NotBlank(message = "Employee name cannot be blank") String getName() {
         return name;
     }
 
+    @PositiveOrZero
     public int getBuildings() {
         return buildings;
     }
-
 
     @Override
     public String toString() {

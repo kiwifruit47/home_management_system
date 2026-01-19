@@ -3,19 +3,18 @@ package org.cscb525.dao;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Root;
 import jakarta.validation.Valid;
 import org.cscb525.config.SessionFactoryUtil;
+import org.cscb525.dto.building.BuildingDto;
 import org.cscb525.entity.Building;
 import org.cscb525.entity.Company;
 import org.cscb525.entity.Employee;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class EmployeeDao {
     //employee can't be persisted if the company doesn't exist in the DB
@@ -100,15 +99,21 @@ public class EmployeeDao {
         }
     }
 
-    public static List<Building> getAllBuildingsByEmployee(Employee employee) {
+    public static List<BuildingDto> getAllBuildingsByEmployee(long employeeId) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             CriteriaBuilder cb = session.getCriteriaBuilder();
-            CriteriaQuery<Building> cr = cb.createQuery(Building.class);
+            CriteriaQuery<BuildingDto> cr = cb.createQuery(BuildingDto.class);
             Root<Building> root = cr.from(Building.class);
 
-            cr.select(root).where(cb.equal(root.get("employee").get("id"), employee.getId()));
+            Join<?, ?> employee = root.join("employee");
 
+            cr.select(cb.construct(
+                    BuildingDto.class,
+                    root.get("address")
+                    ))
+                    .where(cb.equal(employee.get("id"), employeeId));
             return session.createQuery(cr).getResultList();
         }
     }
+
 }

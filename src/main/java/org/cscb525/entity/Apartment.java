@@ -12,7 +12,8 @@ public class Apartment extends BaseEntity {
     @NotNull
     private int floor;
     @NotNull
-    private int apartment_number;
+    @Column(name = "apartment_number")
+    private int apartmentNumber;
     @NotNull
     private BigDecimal area;
     private int pets;
@@ -29,9 +30,9 @@ public class Apartment extends BaseEntity {
     public Apartment() {
     }
 
-    public Apartment(int floor, int apartment_number, BigDecimal area, int pets, Building building, Set<Owner> owners, Set<Occupant> occupants) {
+    public Apartment(int floor, int apartmentNumber, BigDecimal area, int pets, Building building, Set<Owner> owners, Set<Occupant> occupants) {
         this.floor = floor;
-        this.apartment_number = apartment_number;
+        this.apartmentNumber = apartmentNumber;
         this.area = area;
         this.pets = pets;
         this.building = building;
@@ -39,9 +40,9 @@ public class Apartment extends BaseEntity {
         this.occupants = occupants;
     }
 
-    public Apartment(int floor, int apartment_number, BigDecimal area, int pets, Building building, Set<Owner> owners) {
+    public Apartment(int floor, int apartmentNumber, BigDecimal area, int pets, Building building, Set<Owner> owners) {
         this.floor = floor;
-        this.apartment_number = apartment_number;
+        this.apartmentNumber = apartmentNumber;
         this.area = area;
         this.pets = pets;
         this.building = building;
@@ -59,11 +60,11 @@ public class Apartment extends BaseEntity {
 
     @NotNull
     public int getApartment_number() {
-        return apartment_number;
+        return apartmentNumber;
     }
 
-    public void setApartment_number(@NotNull int apartment_number) {
-        this.apartment_number = apartment_number;
+    public void setApartment_number(@NotNull int apartmentNumber) {
+        this.apartmentNumber = apartmentNumber;
     }
 
     public @NotNull BigDecimal getArea() {
@@ -118,7 +119,7 @@ public class Apartment extends BaseEntity {
     public String toString() {
         return "Apartment{" +
                 "floor=" + floor +
-                ", apartment_number=" + apartment_number +
+                ", apartmentNumber=" + apartmentNumber +
                 ", area=" + area +
                 ", pets=" + pets +
                 ", building=" + building +

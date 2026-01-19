@@ -4,8 +4,10 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.*;
 import jakarta.validation.Valid;
 import org.cscb525.config.SessionFactoryUtil;
+import org.cscb525.dto.building.BuildingDto;
 import org.cscb525.dto.company.CompanyIncomeDto;
-import org.cscb525.dto.employee.EmployeeBuildingsDto;
+import org.cscb525.dto.employee.EmployeeBuildingCountDto;
+import org.cscb525.dto.employee.EmployeeDto;
 import org.cscb525.entity.Building;
 import org.cscb525.entity.Company;
 import org.cscb525.entity.Employee;
@@ -81,15 +83,57 @@ public class CompanyDao {
         }
     }
 
-    public static List<Employee> getAllEmployeesByCompany(Company company) {
+    public static List<EmployeeDto> getAllEmployeesByCompany(long companyId) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             CriteriaBuilder cb = session.getCriteriaBuilder();
-            CriteriaQuery<Employee> cr = cb.createQuery(Employee.class);
+            CriteriaQuery<EmployeeDto> cr = cb.createQuery(EmployeeDto.class);
             Root<Employee> root = cr.from(Employee.class);
 
-            cr.select(root).where(cb.equal(root.get("company"), company));
+            Join<?, ?> company = root.join("company");
+
+            cr.select(cb.construct(
+                    EmployeeDto.class,
+                    root.get("name")
+                    ))
+                    .where(cb.equal(company.get("id"), companyId));
 
             return session.createQuery(cr).getResultList();
+        }
+    }
+
+    public static  List<BuildingDto> getAllBuildingsByCompany(long companyId) {
+        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<BuildingDto> cr = cb.createQuery(BuildingDto.class);
+            Root<Building> root = cr.from(Building.class);
+
+            Join<?, ?> employee = root.join("employee");
+            Join<?, ?> company = employee.join("company");
+
+            cr.select(cb.construct(
+                    BuildingDto.class,
+                    root.get("address")
+            ))
+                    .where(cb.equal(company.get("id"), companyId));
+            return session.createQuery(cr).getResultList();
+        }
+    }
+
+    public static long getAllBuildingCountByCompany(long companyId) {
+        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<Long> cr = cb.createQuery(Long.class);
+            Root<Building> root = cr.from(Building.class);
+
+            Join<?, ?> company = root.join("company");
+
+            cr.select(cb.construct(
+                    Long.class,
+                    cb.count(root)
+            ))
+                    .where(cb.equal(company.get("id"), companyId));
+
+            return session.createQuery(cr).getSingleResult();
         }
     }
 
@@ -119,10 +163,10 @@ public class CompanyDao {
         }
     }
 
-    public static List<EmployeeBuildingsDto> getEmployeesGroupByCompanyOrderByBuildingCountDescAndNameAsc(long companyId) {
+    public static List<EmployeeBuildingCountDto> getEmployeesGroupByCompanyOrderByBuildingCountDescAndNameAsc(long companyId) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             CriteriaBuilder cb = session.getCriteriaBuilder();
-            CriteriaQuery<EmployeeBuildingsDto> cr = cb.createQuery(EmployeeBuildingsDto.class);
+            CriteriaQuery<EmployeeBuildingCountDto> cr = cb.createQuery(EmployeeBuildingCountDto.class);
             Root<Company> root = cr.from(Company.class);
 
             Join<?, ?> employee = root.join("employees");
@@ -131,7 +175,7 @@ public class CompanyDao {
             Expression<Long> buildingCount = cb.count(building);
 
             cr.select(cb.construct(
-                    EmployeeBuildingsDto.class,
+                    EmployeeBuildingCountDto.class,
                     employee.get("name"),
                     cb.count(building)
             ))

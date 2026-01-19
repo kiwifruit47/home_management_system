@@ -1,4 +1,4 @@
-package org.cscb525.dto;
+package org.cscb525.dto.building;
 
 import jakarta.validation.constraints.NotBlank;
 

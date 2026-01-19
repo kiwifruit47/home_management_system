@@ -2,7 +2,7 @@ package org.cscb525.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -12,7 +12,6 @@ import java.time.YearMonth;
 @Table(name = "monthly_apartment_tax")
 public class MonthlyApartmentTax extends BaseEntity{
     @NotNull
-    @Positive
     @Column(name = "payment_for_month")
     private YearMonth paymentForMonth;
     @Column(name = "is_paid")
@@ -22,7 +21,7 @@ public class MonthlyApartmentTax extends BaseEntity{
     private LocalDate dateOfPayment;
     @Column(name = "payment_value")
     @NotNull
-    @Positive
+    @PositiveOrZero
     private BigDecimal paymentValue;
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)

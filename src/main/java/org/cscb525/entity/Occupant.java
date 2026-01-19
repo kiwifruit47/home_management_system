@@ -4,12 +4,13 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 
 @Entity
 @Table(name = "occupant")
 public class Occupant extends BaseEntity {
     @NotNull
-    @Positive
+    @PositiveOrZero
     private int age;
     @NotBlank(message = "Occupant name cannot be blank")
     private String name;
