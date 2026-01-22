@@ -14,10 +14,10 @@ public class MonthlyApartmentTax extends BaseEntity{
     @NotNull
     @Column(name = "payment_for_month")
     private YearMonth paymentForMonth;
+    @NotNull
     @Column(name = "is_paid")
     private boolean isPaid = false;
     @Column(name = "date_of_payment")
-    @NotNull
     private LocalDate dateOfPayment;
     @Column(name = "payment_value")
     @NotNull
@@ -32,6 +32,13 @@ public class MonthlyApartmentTax extends BaseEntity{
 
     public MonthlyApartmentTax(YearMonth paymentForMonth, BigDecimal paymentValue, Apartment apartment) {
         this.paymentForMonth = paymentForMonth;
+        this.paymentValue = paymentValue;
+        this.apartment = apartment;
+    }
+
+    public MonthlyApartmentTax(YearMonth paymentForMonth, boolean isPaid, BigDecimal paymentValue, Apartment apartment) {
+        this.paymentForMonth = paymentForMonth;
+        this.isPaid = isPaid;
         this.paymentValue = paymentValue;
         this.apartment = apartment;
     }

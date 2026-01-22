@@ -1,16 +1,11 @@
-package org.cscb525.entity;
+package org.cscb525.dto.building;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-
 import java.math.BigDecimal;
-import java.util.Set;
 
-@Entity
-@Table(name = "building")
-public class Building extends BaseEntity {
+public class CreateBuildingDto {
     @NotBlank(message = "Address cannot be blank")
     private String address;
     @NotNull
@@ -18,34 +13,15 @@ public class Building extends BaseEntity {
     private int floors;
     @NotNull
     @Positive
-    @Column(name = "monthly_tax_per_person")
     private BigDecimal monthlyTaxPerPerson;
     @NotNull
     @Positive
-    @Column(name = "monthly_tax_per_pet")
     private BigDecimal monthlyTaxPerPet;
     @NotNull
     @Positive
-    @Column(name = "monthly_tax_per_m2")
     private BigDecimal monthlyTaxPerM2;
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Employee employee;
-    @OneToMany(mappedBy = "building")
-    private Set<Apartment> apartments;
-
-    public Building() {
-    }
-
-    public Building(String address, int floors, BigDecimal monthlyTaxPerPerson, BigDecimal monthlyTaxPerPet, BigDecimal monthlyTaxPerM2, Employee employee, Set<Apartment> apartments) {
-        this.address = address;
-        this.floors = floors;
-        this.monthlyTaxPerPerson = monthlyTaxPerPerson;
-        this.monthlyTaxPerPet = monthlyTaxPerPet;
-        this.monthlyTaxPerM2 = monthlyTaxPerM2;
-        this.employee = employee;
-        this.apartments = apartments;
-    }
+    private long employeeId;
 
     public @NotBlank(message = "Address cannot be blank") String getAddress() {
         return address;
@@ -89,32 +65,24 @@ public class Building extends BaseEntity {
         this.monthlyTaxPerM2 = monthlyTaxPerM2;
     }
 
-    public @NotNull Employee getEmployee() {
-        return employee;
+    @NotNull
+    public long getEmployeeId() {
+        return employeeId;
     }
 
-    public void setEmployee(@NotNull Employee employee) {
-        this.employee = employee;
-    }
-
-    public Set<Apartment> getApartments() {
-        return apartments;
-    }
-
-    public void setApartments(Set<Apartment> apartments) {
-        this.apartments = apartments;
+    public void setEmployeeId(@NotNull long employeeId) {
+        this.employeeId = employeeId;
     }
 
     @Override
     public String toString() {
-        return "Building{" +
+        return "CreateBuildingDto{" +
                 "address='" + address + '\'' +
                 ", floors=" + floors +
                 ", monthlyTaxPerPerson=" + monthlyTaxPerPerson +
                 ", monthlyTaxPerPet=" + monthlyTaxPerPet +
                 ", monthlyTaxPerM2=" + monthlyTaxPerM2 +
-                ", employee=" + employee +
-                ", apartments=" + apartments +
-                "} " + super.toString();
+                ", employeeId=" + employeeId +
+                '}';
     }
 }

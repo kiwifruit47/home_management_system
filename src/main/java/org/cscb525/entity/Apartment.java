@@ -2,6 +2,7 @@ package org.cscb525.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 
 import java.math.BigDecimal;
 import java.util.Set;
@@ -16,6 +17,7 @@ public class Apartment extends BaseEntity {
     private int apartmentNumber;
     @NotNull
     private BigDecimal area;
+    @PositiveOrZero
     private int pets;
     @ManyToOne(fetch = FetchType.LAZY)
     private Building building;
@@ -24,7 +26,6 @@ public class Apartment extends BaseEntity {
     @OneToMany(mappedBy = "apartment")
     private Set<Occupant> occupants;
     @OneToMany(mappedBy = "apartment")
-    @Column(name = "monthly_apartment_taxes")
     private Set<MonthlyApartmentTax> monthlyApartmentTaxes;
 
     public Apartment() {
@@ -59,11 +60,11 @@ public class Apartment extends BaseEntity {
     }
 
     @NotNull
-    public int getApartment_number() {
+    public int getApartmentNumber() {
         return apartmentNumber;
     }
 
-    public void setApartment_number(@NotNull int apartmentNumber) {
+    public void setApartmentNumber(@NotNull int apartmentNumber) {
         this.apartmentNumber = apartmentNumber;
     }
 

@@ -1,30 +1,29 @@
 package org.cscb525.dto.monthlyApartmentTax;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.YearMonth;
 
-public class MonthlyApartmentTaxDto {
+public class CreateMonthlyApartmentTaxDto {
     @NotNull
-    private YearMonth paymentForMonth;
-    private boolean isPaid;
+    private final YearMonth paymentForMonth;
+    private final boolean isPaid;
+    private final LocalDate dateOfPayment;
     @NotNull
     @PositiveOrZero
-    private BigDecimal paymentValue;
+    private final BigDecimal paymentValue;
     @NotNull
-    private int apartmentNumber;
-    @NotBlank(message = "Address cannot be blank")
-    private String address;
+    private final long apartmentId;
 
-    public MonthlyApartmentTaxDto(YearMonth paymentForMonth, boolean isPaid, BigDecimal paymentValue, int apartmentNumber, String address) {
+    public CreateMonthlyApartmentTaxDto(YearMonth paymentForMonth, boolean isPaid, LocalDate dateOfPayment, BigDecimal paymentValue, long apartmentId) {
         this.paymentForMonth = paymentForMonth;
         this.isPaid = isPaid;
+        this.dateOfPayment = dateOfPayment;
         this.paymentValue = paymentValue;
-        this.apartmentNumber = apartmentNumber;
-        this.address = address;
+        this.apartmentId = apartmentId;
     }
 
     public @NotNull YearMonth getPaymentForMonth() {
@@ -35,27 +34,27 @@ public class MonthlyApartmentTaxDto {
         return isPaid;
     }
 
+    public @NotNull LocalDate getDateOfPayment() {
+        return dateOfPayment;
+    }
+
     public @NotNull @PositiveOrZero BigDecimal getPaymentValue() {
         return paymentValue;
     }
 
     @NotNull
-    public int getApartmentNumber() {
-        return apartmentNumber;
-    }
-
-    public @NotBlank(message = "Address cannot be blank") String getAddress() {
-        return address;
+    public long getApartmentId() {
+        return apartmentId;
     }
 
     @Override
     public String toString() {
-        return "MonthlyApartmentTaxDto{" +
+        return "CreateMonthlyApartmentTaxDto{" +
                 "paymentForMonth=" + paymentForMonth +
                 ", isPaid=" + isPaid +
+                ", dateOfPayment=" + dateOfPayment +
                 ", paymentValue=" + paymentValue +
-                ", apartmentNumber=" + apartmentNumber +
-                ", address+" + address +
+                ", apartmentId=" + apartmentId +
                 '}';
     }
 }

@@ -1,58 +1,46 @@
-package org.cscb525.entity;
+package org.cscb525.dto.building;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
-import java.util.Set;
 
-@Entity
-@Table(name = "building")
-public class Building extends BaseEntity {
-    @NotBlank(message = "Address cannot be blank")
-    private String address;
+public class UpdateBuildingDto {
+    @NotNull
+    @Positive
+    private long id;
     @NotNull
     @Positive
     private int floors;
     @NotNull
     @Positive
-    @Column(name = "monthly_tax_per_person")
     private BigDecimal monthlyTaxPerPerson;
     @NotNull
     @Positive
-    @Column(name = "monthly_tax_per_pet")
     private BigDecimal monthlyTaxPerPet;
     @NotNull
     @Positive
-    @Column(name = "monthly_tax_per_m2")
     private BigDecimal monthlyTaxPerM2;
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Employee employee;
-    @OneToMany(mappedBy = "building")
-    private Set<Apartment> apartments;
+    private long employeeId;
 
-    public Building() {
-    }
-
-    public Building(String address, int floors, BigDecimal monthlyTaxPerPerson, BigDecimal monthlyTaxPerPet, BigDecimal monthlyTaxPerM2, Employee employee, Set<Apartment> apartments) {
-        this.address = address;
+    public UpdateBuildingDto(long id, int floors, BigDecimal monthlyTaxPerPerson, BigDecimal monthlyTaxPerPet, BigDecimal monthlyTaxPerM2, long employeeId) {
+        this.id = id;
         this.floors = floors;
         this.monthlyTaxPerPerson = monthlyTaxPerPerson;
         this.monthlyTaxPerPet = monthlyTaxPerPet;
         this.monthlyTaxPerM2 = monthlyTaxPerM2;
-        this.employee = employee;
-        this.apartments = apartments;
+        this.employeeId = employeeId;
     }
 
-    public @NotBlank(message = "Address cannot be blank") String getAddress() {
-        return address;
+    @NotNull
+    @Positive
+    public long getId() {
+        return id;
     }
 
-    public void setAddress(@NotBlank(message = "Address cannot be blank") String address) {
-        this.address = address;
+    public void setId(@NotNull @Positive long id) {
+        this.id = id;
     }
 
     @NotNull
@@ -89,32 +77,24 @@ public class Building extends BaseEntity {
         this.monthlyTaxPerM2 = monthlyTaxPerM2;
     }
 
-    public @NotNull Employee getEmployee() {
-        return employee;
+    @NotNull
+    public long getEmployeeId() {
+        return employeeId;
     }
 
-    public void setEmployee(@NotNull Employee employee) {
-        this.employee = employee;
-    }
-
-    public Set<Apartment> getApartments() {
-        return apartments;
-    }
-
-    public void setApartments(Set<Apartment> apartments) {
-        this.apartments = apartments;
+    public void setEmployeeId(@NotNull long employeeId) {
+        this.employeeId = employeeId;
     }
 
     @Override
     public String toString() {
-        return "Building{" +
-                "address='" + address + '\'' +
+        return "UpdateBuildingDto{" +
+                "id=" + id +
                 ", floors=" + floors +
                 ", monthlyTaxPerPerson=" + monthlyTaxPerPerson +
                 ", monthlyTaxPerPet=" + monthlyTaxPerPet +
                 ", monthlyTaxPerM2=" + monthlyTaxPerM2 +
-                ", employee=" + employee +
-                ", apartments=" + apartments +
-                "} " + super.toString();
+                ", employeeId=" + employeeId +
+                '}';
     }
 }

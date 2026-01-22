@@ -5,15 +5,12 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.YearMonth;
 
 public class MonthlyApartmentTaxEmployeeDto {
     @NotNull
     private YearMonth paymentForMonth;
     private boolean isPaid;
-    @NotNull
-    private LocalDate dateOfPayment;
     @NotNull
     @PositiveOrZero
     private BigDecimal paymentValue;
@@ -24,10 +21,9 @@ public class MonthlyApartmentTaxEmployeeDto {
     @NotBlank(message = "Employee name cannot be blank")
     private String employeeName;
 
-    public MonthlyApartmentTaxEmployeeDto(YearMonth paymentForMonth, boolean isPaid, LocalDate dateOfPayment, BigDecimal paymentValue, int apartmentNumber, String address, String employeeName) {
+    public MonthlyApartmentTaxEmployeeDto(YearMonth paymentForMonth, boolean isPaid, BigDecimal paymentValue, int apartmentNumber, String address, String employeeName) {
         this.paymentForMonth = paymentForMonth;
         this.isPaid = isPaid;
-        this.dateOfPayment = dateOfPayment;
         this.paymentValue = paymentValue;
         this.apartmentNumber = apartmentNumber;
         this.address = address;
@@ -40,10 +36,6 @@ public class MonthlyApartmentTaxEmployeeDto {
 
     public boolean isPaid() {
         return isPaid;
-    }
-
-    public @NotNull LocalDate getDateOfPayment() {
-        return dateOfPayment;
     }
 
     public @NotNull @PositiveOrZero BigDecimal getPaymentValue() {
@@ -68,7 +60,6 @@ public class MonthlyApartmentTaxEmployeeDto {
         return "MonthlyApartmentTaxEmployeeDto{" +
                 "paymentForMonth=" + paymentForMonth +
                 ", isPaid=" + isPaid +
-                ", dateOfPayment=" + dateOfPayment +
                 ", paymentValue=" + paymentValue +
                 ", apartmentNumber=" + apartmentNumber +
                 ", address='" + address + '\'' +

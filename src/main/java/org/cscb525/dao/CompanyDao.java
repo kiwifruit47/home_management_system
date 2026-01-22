@@ -1,16 +1,15 @@
 package org.cscb525.dao;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.criteria.*;
 import jakarta.validation.Valid;
 import org.cscb525.config.SessionFactoryUtil;
-import org.cscb525.dto.building.BuildingDto;
+import org.cscb525.dto.company.CompanyDto;
 import org.cscb525.dto.company.CompanyIncomeDto;
-import org.cscb525.dto.employee.EmployeeBuildingCountDto;
-import org.cscb525.dto.employee.EmployeeDto;
-import org.cscb525.entity.Building;
+import org.cscb525.dto.company.CreateCompanyDto;
+import org.cscb525.dto.company.UpdateCompanyDto;
 import org.cscb525.entity.Company;
-import org.cscb525.entity.Employee;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -18,39 +17,59 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public class CompanyDao {
-    public static void createCompany(@Valid Company company) {
+    public static void createCompany(@Valid CreateCompanyDto createCompanyDto) {
         try(Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
+            Company company = new Company();
+            company.setName(createCompanyDto.getName());
             Transaction transaction = session.beginTransaction();
             session.persist(company);
             transaction.commit();
         }
     }
 
-    public static void updateCompany(@Valid Company company) {
+    public static void updateCompany(@Valid UpdateCompanyDto companyDto) {
         try(Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
-            session.merge(company);
+            Company company = session.get(Company.class, companyDto.getId());
+            if (company == null) {
+                throw new EntityNotFoundException("No company with id " + companyDto.getId() + " found");
+            }
+
+            company.setName(companyDto.getName());
             transaction.commit();
         }
     }
 
-    public static Company findCompanyById(long id) {
-        Company company;
+    public static CompanyDto findCompanyById(long id) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            company = session.get(Company.class, id);
-        }
-        if (company == null)
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<CompanyDto> cr = cb.createQuery(CompanyDto.class);
+            Root<Company> root = cr.from(Company.class);
+
+            cr.select(cb.construct(
+                    CompanyDto.class,
+                    root.get("name")
+            ))
+                    .where(cb.equal(root.get("id"), id));
+            return session.createQuery(cr).getSingleResult();
+        } catch (NoResultException e) {
             throw new EntityNotFoundException("No company with id " + id + " found.");
-        return company;
+        }
     }
 
-    public static List<Company> findAllCompanies() {
-        List<Company> companies;
+    public static List<CompanyDto> findAllCompanies() {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            companies = session.createQuery("select c from Company c", Company.class)
-                    .getResultList();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<CompanyDto> cr = cb.createQuery(CompanyDto.class);
+            Root<Company> root = cr.from(Company.class);
+
+            cr.select(cb.construct(
+                    CompanyDto.class,
+                    root.get("name")
+            ))
+                    .where(cb.isFalse(root.get("deleted")));
+            return session.createQuery(cr).getResultList();
         }
-        return companies;
     }
 
     //throws exception if nothing is deleted (no company with such id found)
@@ -83,60 +102,6 @@ public class CompanyDao {
         }
     }
 
-    public static List<EmployeeDto> getAllEmployeesByCompany(long companyId) {
-        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            CriteriaBuilder cb = session.getCriteriaBuilder();
-            CriteriaQuery<EmployeeDto> cr = cb.createQuery(EmployeeDto.class);
-            Root<Employee> root = cr.from(Employee.class);
-
-            Join<?, ?> company = root.join("company");
-
-            cr.select(cb.construct(
-                    EmployeeDto.class,
-                    root.get("name")
-                    ))
-                    .where(cb.equal(company.get("id"), companyId));
-
-            return session.createQuery(cr).getResultList();
-        }
-    }
-
-    public static  List<BuildingDto> getAllBuildingsByCompany(long companyId) {
-        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            CriteriaBuilder cb = session.getCriteriaBuilder();
-            CriteriaQuery<BuildingDto> cr = cb.createQuery(BuildingDto.class);
-            Root<Building> root = cr.from(Building.class);
-
-            Join<?, ?> employee = root.join("employee");
-            Join<?, ?> company = employee.join("company");
-
-            cr.select(cb.construct(
-                    BuildingDto.class,
-                    root.get("address")
-            ))
-                    .where(cb.equal(company.get("id"), companyId));
-            return session.createQuery(cr).getResultList();
-        }
-    }
-
-    public static long getAllBuildingCountByCompany(long companyId) {
-        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            CriteriaBuilder cb = session.getCriteriaBuilder();
-            CriteriaQuery<Long> cr = cb.createQuery(Long.class);
-            Root<Building> root = cr.from(Building.class);
-
-            Join<?, ?> company = root.join("company");
-
-            cr.select(cb.construct(
-                    Long.class,
-                    cb.count(root)
-            ))
-                    .where(cb.equal(company.get("id"), companyId));
-
-            return session.createQuery(cr).getSingleResult();
-        }
-    }
-
     public static List<CompanyIncomeDto> getAllCompaniesOrderByIncomeDesc() {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             CriteriaBuilder cb = session.getCriteriaBuilder();
@@ -146,10 +111,10 @@ public class CompanyDao {
             Join<?, ?> employee = root.join("employees");
             Join<?, ?> building = employee.join("buildings");
             Join<?, ?> apartment = building.join("apartments");
-            Join<?, ?> monthlyApartmentTax = apartment.join("monthly_apartment_taxes");
+            Join<?, ?> monthlyApartmentTax = apartment.join("monthlyApartmentTaxes");
 
             Expression<BigDecimal> income =
-                    cb.coalesce(cb.sum(monthlyApartmentTax.get("payment_value")), BigDecimal.ZERO);
+                    cb.coalesce(cb.sum(monthlyApartmentTax.get("paymentValue")), BigDecimal.ZERO);
 
             cr.select(cb.construct(
                     CompanyIncomeDto.class,
@@ -163,31 +128,6 @@ public class CompanyDao {
         }
     }
 
-    public static List<EmployeeBuildingCountDto> getEmployeesGroupByCompanyOrderByBuildingCountDescAndNameAsc(long companyId) {
-        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            CriteriaBuilder cb = session.getCriteriaBuilder();
-            CriteriaQuery<EmployeeBuildingCountDto> cr = cb.createQuery(EmployeeBuildingCountDto.class);
-            Root<Company> root = cr.from(Company.class);
 
-            Join<?, ?> employee = root.join("employees");
-            Join<?, ?> building = employee.join("buildings");
-
-            Expression<Long> buildingCount = cb.count(building);
-
-            cr.select(cb.construct(
-                    EmployeeBuildingCountDto.class,
-                    employee.get("name"),
-                    cb.count(building)
-            ))
-                    .where(cb.equal(root.get("id"), companyId))
-                    .groupBy(employee.get("name"))
-                    .orderBy(
-                            cb.desc(buildingCount),
-                            cb.asc(employee.get("name")
-                            ));
-
-            return session.createQuery(cr).getResultList();
-        }
-    }
 
 }
