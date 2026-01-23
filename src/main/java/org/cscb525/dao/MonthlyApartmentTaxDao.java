@@ -2,18 +2,18 @@ package org.cscb525.dao;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.NoResultException;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 import org.cscb525.config.SessionFactoryUtil;
 import org.cscb525.dto.monthlyApartmentTax.*;
 import org.cscb525.entity.Apartment;
 import org.cscb525.entity.MonthlyApartmentTax;
+import org.cscb525.entity.Occupant;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 public class MonthlyApartmentTaxDao {
@@ -30,8 +30,8 @@ public class MonthlyApartmentTaxDao {
 
             MonthlyApartmentTax monthlyApartmentTax = new MonthlyApartmentTax();
             monthlyApartmentTax.setApartment(apartment);
-            monthlyApartmentTax.setPaid(taxDto.isPaid());
-            monthlyApartmentTax.setDateOfPayment(taxDto.getDateOfPayment());
+            monthlyApartmentTax.setPaid(false);
+            monthlyApartmentTax.setDateOfPayment(null);
             monthlyApartmentTax.setPaymentValue(taxDto.getPaymentValue());
             monthlyApartmentTax.setPaymentForMonth(taxDto.getPaymentForMonth());
 
@@ -46,21 +46,21 @@ public class MonthlyApartmentTaxDao {
         }
     }
 
-    public static void updateMonthlyApartmentTax(UpdateMonthlyApartmentTaxDto taxDto) {
+    public static void markTaxAsPaid(long taxId, LocalDate dateOfPayment) {
         Transaction transaction = null;
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
             MonthlyApartmentTax monthlyApartmentTax = session.get(
                     MonthlyApartmentTax.class,
-                    taxDto.getId()
+                    taxId
             );
 
             if (monthlyApartmentTax == null) {
-                throw new EntityNotFoundException("Monthly apartment tax with id " + taxDto.getId() + " not found.");
+                throw new EntityNotFoundException("Monthly apartment tax with id " + taxId + " not found.");
             }
 
-            monthlyApartmentTax.setDateOfPayment(taxDto.getDateOfPayment());
-            monthlyApartmentTax.setPaid(taxDto.isPaid());
+            monthlyApartmentTax.setDateOfPayment(dateOfPayment);
+            monthlyApartmentTax.setPaid(true);
 
             transaction.commit();
         } catch (RuntimeException e) {
@@ -149,7 +149,7 @@ public class MonthlyApartmentTaxDao {
         }
     }
 
-    public static BigDecimal sumMonthlyApartmentTaxesSumByApartment(long apartmentId, boolean isPid) {
+    public static BigDecimal sumMonthlyApartmentTaxesByApartment(long apartmentId, boolean isPid) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             CriteriaBuilder cb = session.getCriteriaBuilder();
             CriteriaQuery<BigDecimal> cr = cb.createQuery(BigDecimal.class);
@@ -292,4 +292,78 @@ public class MonthlyApartmentTaxDao {
         }
     }
 
+    public static MonthlyApartmentTaxReceiptDto findPaidMonthlyApartmentTaxById(long id) {
+        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
+             CriteriaBuilder cb = session.getCriteriaBuilder();
+             CriteriaQuery<MonthlyApartmentTaxReceiptDto> cr = cb.createQuery(MonthlyApartmentTaxReceiptDto.class);
+             Root<MonthlyApartmentTax> root = cr.from(MonthlyApartmentTax.class);
+
+             Join<?, ?> apartment = root.join("apartment");
+             Join<?, ?> building = apartment.join("building");
+             Join<?, ?> employee = building.join("employee");
+             Join<?, ?> company = employee.join("company");
+
+             cr.select(cb.construct(
+                     MonthlyApartmentTaxReceiptDto.class,
+                     root.get("paymentForMonth"),
+                     root.get("dateOfPayment"),
+                     root.get("paymentValue"),
+                     apartment.get("apartmentNumber"),
+                     building.get("address"),
+                     employee.get("name"),
+                     company.get("name")
+             ))
+                     .where(cb.and(
+                             cb.equal(root.get("id"), id),
+                             cb.isTrue(root.get("isPaid"))
+                     ));
+             return session.createQuery(cr).getSingleResult();
+        } catch (NoResultException e) {
+            throw new EntityNotFoundException("Monthly apartment tax with id " + id + " not found.");
+        }
+    }
+
+    public static CalculateMonthlyApartmentTaxDto findDataForTaxCalc(long apartmentId) {
+        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<CalculateMonthlyApartmentTaxDto> cr = cb.createQuery(CalculateMonthlyApartmentTaxDto.class);
+            Root<Apartment> root = cr.from(Apartment.class);
+
+            Join<?, ?> building = root.join("building");
+            Join<Apartment, Occupant> occupants = root.join("occupants", JoinType.LEFT);
+
+            cr.select(cb.construct(
+                    CalculateMonthlyApartmentTaxDto.class,
+                    root.get("area"),
+                    root.get("pets"),
+                    cb.count(occupants),
+                    building.get("monthlyTaxPerPerson"),
+                    building.get("monthlyTaxPerPet"),
+                    building.get("monthlyTaxPerM2")
+            ))
+                    .where(cb.equal(root.get("id"), apartmentId));
+            return session.createQuery(cr).getSingleResult();
+        } catch (NoResultException e) {
+            throw new EntityNotFoundException("Apartment with id " + apartmentId + " not found.");
+        }
+    }
+
+    public static boolean taxExistenceCheck(Long apartmentId, YearMonth month) {
+        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<Long> cr = cb.createQuery(Long.class);
+            Root<MonthlyApartmentTax> root = cr.from(MonthlyApartmentTax.class);
+
+            cr.select(cb.count(root))
+                    .where(
+                            cb.and(
+                                    cb.equal(root.get("apartment").get("id"), apartmentId),
+                                    cb.equal(root.get("paymentForMonth"), month)
+                            )
+                    );
+
+            long count = session.createQuery(cr).getSingleResult();
+            return count > 0;
+        }
+    }
 }

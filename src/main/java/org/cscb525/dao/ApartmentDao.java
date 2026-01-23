@@ -220,6 +220,18 @@ public class ApartmentDao {
         }
     }
 
+    public static List<Long> findAllApartmentIds() {
+        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<Long> cr = cb.createQuery(Long.class);
+            Root<Apartment> root = cr.from(Apartment.class);
+
+            cr.select(root.get("id"));
+
+            return session.createQuery(cr).getResultList();
+        }
+    }
+
     public static void deleteApartment(long id) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();

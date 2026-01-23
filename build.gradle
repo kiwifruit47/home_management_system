@@ -17,6 +17,8 @@ dependencies {
     implementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
     // https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator-annotation-processor
     implementation("org.hibernate.validator:hibernate-validator-annotation-processor:8.0.1.Final")
+    // Source: https://mvnrepository.com/artifact/org.apache.poi/poi
+    implementation("org.apache.poi:poi:5.5.1")
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     // https://mvnrepository.com/artifact/com.h2database/h2
