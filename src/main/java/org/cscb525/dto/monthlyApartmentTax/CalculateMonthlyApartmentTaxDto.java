@@ -33,29 +33,27 @@ public class CalculateMonthlyApartmentTaxDto {
         this.monthlyTaxPerM2 = monthlyTaxPerM2;
     }
 
-    public @NotNull BigDecimal getArea() {
+    public BigDecimal getArea() {
         return area;
     }
 
-    @PositiveOrZero
     public int getPets() {
         return pets;
     }
 
-    @PositiveOrZero
     public int getTaxedOccupantCount() {
         return taxedOccupantCount;
     }
 
-    public @Positive BigDecimal getMonthlyTaxPerPerson() {
+    public BigDecimal getMonthlyTaxPerPerson() {
         return monthlyTaxPerPerson;
     }
 
-    public @NotNull @Positive BigDecimal getMonthlyTaxPerPet() {
+    public BigDecimal getMonthlyTaxPerPet() {
         return monthlyTaxPerPet;
     }
 
-    public @NotNull @Positive BigDecimal getMonthlyTaxPerM2() {
+    public BigDecimal getMonthlyTaxPerM2() {
         return monthlyTaxPerM2;
     }
 }

@@ -6,23 +6,21 @@ import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 
 public class UpdateBuildingDto {
+    @Positive
+    private final long id;
+    @Positive
+    private final int floors;
     @NotNull
     @Positive
-    private long id;
+    private final BigDecimal monthlyTaxPerPerson;
     @NotNull
     @Positive
-    private int floors;
+    private final BigDecimal monthlyTaxPerPet;
     @NotNull
     @Positive
-    private BigDecimal monthlyTaxPerPerson;
-    @NotNull
+    private final BigDecimal monthlyTaxPerM2;
     @Positive
-    private BigDecimal monthlyTaxPerPet;
-    @NotNull
-    @Positive
-    private BigDecimal monthlyTaxPerM2;
-    @NotNull
-    private long employeeId;
+    private final long employeeId;
 
     public UpdateBuildingDto(long id, int floors, BigDecimal monthlyTaxPerPerson, BigDecimal monthlyTaxPerPet, BigDecimal monthlyTaxPerM2, long employeeId) {
         this.id = id;
@@ -33,57 +31,24 @@ public class UpdateBuildingDto {
         this.employeeId = employeeId;
     }
 
-    @NotNull
-    @Positive
     public long getId() {
         return id;
     }
 
-    public void setId(@NotNull @Positive long id) {
-        this.id = id;
-    }
-
-    @NotNull
-    @Positive
-    public int getFloors() {
-        return floors;
-    }
-
-    public void setFloors(@NotNull @Positive int floors) {
-        this.floors = floors;
-    }
-
-    public @NotNull @Positive BigDecimal getMonthlyTaxPerPerson() {
+    public BigDecimal getMonthlyTaxPerPerson() {
         return monthlyTaxPerPerson;
     }
 
-    public void setMonthlyTaxPerPerson(@NotNull @Positive BigDecimal monthlyTaxPerPerson) {
-        this.monthlyTaxPerPerson = monthlyTaxPerPerson;
-    }
-
-    public @NotNull @Positive BigDecimal getMonthlyTaxPerPet() {
+    public BigDecimal getMonthlyTaxPerPet() {
         return monthlyTaxPerPet;
     }
 
-    public void setMonthlyTaxPerPet(@NotNull @Positive BigDecimal monthlyTaxPerPet) {
-        this.monthlyTaxPerPet = monthlyTaxPerPet;
-    }
-
-    public @NotNull @Positive BigDecimal getMonthlyTaxPerM2() {
+    public BigDecimal getMonthlyTaxPerM2() {
         return monthlyTaxPerM2;
     }
 
-    public void setMonthlyTaxPerM2(@NotNull @Positive BigDecimal monthlyTaxPerM2) {
-        this.monthlyTaxPerM2 = monthlyTaxPerM2;
-    }
-
-    @NotNull
     public long getEmployeeId() {
         return employeeId;
-    }
-
-    public void setEmployeeId(@NotNull long employeeId) {
-        this.employeeId = employeeId;
     }
 
     @Override

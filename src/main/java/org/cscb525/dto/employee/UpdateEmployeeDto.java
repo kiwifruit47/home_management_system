@@ -22,8 +22,6 @@ public class UpdateEmployeeDto {
         this.companyId = companyId;
     }
 
-    @NotNull
-    @Positive
     public long getEmployeeId() {
         return employeeId;
     }
@@ -32,7 +30,7 @@ public class UpdateEmployeeDto {
         this.employeeId = employeeId;
     }
 
-    public @NotBlank(message = "Employee name cannot be blank") String getName() {
+    public String getName() {
         return name;
     }
 
@@ -40,8 +38,6 @@ public class UpdateEmployeeDto {
         this.name = name;
     }
 
-    @NotNull
-    @Positive
     public long getCompanyId() {
         return companyId;
     }

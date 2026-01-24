@@ -33,29 +33,27 @@ public class BuildingDto {
         this.employeeName = employeeName;
     }
 
-    public @NotNull String getAddress() {
+    public String getAddress() {
         return address;
     }
 
-    @NotNull
-    @Positive
     public int getFloors() {
         return floors;
     }
 
-    public @NotNull @Positive BigDecimal getMonthlyTaxPerPerson() {
+    public BigDecimal getMonthlyTaxPerPerson() {
         return monthlyTaxPerPerson;
     }
 
-    public @NotNull @Positive BigDecimal getMonthlyTaxPerPet() {
+    public BigDecimal getMonthlyTaxPerPet() {
         return monthlyTaxPerPet;
     }
 
-    public @NotNull @Positive BigDecimal getMonthlyTaxPerM2() {
+    public BigDecimal getMonthlyTaxPerM2() {
         return monthlyTaxPerM2;
     }
 
-    public @NotBlank(message = "Employee name cannot be blank") String getEmployeeName() {
+    public String getEmployeeName() {
         return employeeName;
     }
 

@@ -18,16 +18,14 @@ public class UpdateMonthlyApartmentTaxDto {
         this.dateOfPayment = dateOfPayment;
     }
 
-    @NotNull
     public boolean isPaid() {
         return isPaid;
     }
 
-    public @NotNull LocalDate getDateOfPayment() {
+    public LocalDate getDateOfPayment() {
         return dateOfPayment;
     }
 
-    @NotNull
     public long getId() {
         return id;
     }

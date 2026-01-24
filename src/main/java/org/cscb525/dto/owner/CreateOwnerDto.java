@@ -10,7 +10,7 @@ public class CreateOwnerDto {
         this.name = name;
     }
 
-    public @NotBlank(message = "Owner name cannot be blank") String getName() {
+    public String getName() {
         return name;
     }
 

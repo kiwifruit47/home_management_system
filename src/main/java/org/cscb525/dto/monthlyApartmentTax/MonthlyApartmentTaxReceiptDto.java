@@ -37,32 +37,31 @@ public class MonthlyApartmentTaxReceiptDto {
         this.companyName = companyName;
     }
 
-    public @NotNull YearMonth getPaymentForMonth() {
+    public YearMonth getPaymentForMonth() {
         return paymentForMonth;
     }
 
-    public @NotNull LocalDate getDateOfPayment() {
+    public LocalDate getDateOfPayment() {
         return dateOfPayment;
     }
 
-    public @NotNull @PositiveOrZero BigDecimal getPaymentValue() {
+    public BigDecimal getPaymentValue() {
         return paymentValue;
     }
 
-    @NotNull
     public int getApartmentNumber() {
         return apartmentNumber;
     }
 
-    public @NotBlank(message = "Address cannot be blank") String getAddress() {
+    public  String getAddress() {
         return address;
     }
 
-    public @NotBlank(message = "Employee name cannot be blank") String getEmployeeName() {
+    public String getEmployeeName() {
         return employeeName;
     }
 
-    public @NotBlank(message = "Company name cannot be blank") @Pattern(regexp = "^[A-Z][a-zA-Z]*$", message = "Company name must start with a capital letter and consist only of letters") String getCompanyName() {
+    public String getCompanyName() {
         return companyName;
     }
 }

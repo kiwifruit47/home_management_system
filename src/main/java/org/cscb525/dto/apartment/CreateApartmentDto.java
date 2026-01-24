@@ -24,17 +24,15 @@ public class CreateApartmentDto {
         this.buildingId = buildingId;
     }
 
-    @NotNull
     public int getFloor() {
         return floor;
     }
 
-    @NotNull
     public int getApartmentNumber() {
         return apartmentNumber;
     }
 
-    public @NotNull BigDecimal getArea() {
+    public BigDecimal getArea() {
         return area;
     }
 

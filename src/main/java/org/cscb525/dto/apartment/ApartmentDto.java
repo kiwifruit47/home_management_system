@@ -28,18 +28,15 @@ public class ApartmentDto {
         this.buildingAddress = buildingAddress;
     }
 
-    @NotNull
-    @Positive
     public int getFloor() {
         return floor;
     }
 
-    @NotNull
     public int getApartmentNumber() {
         return apartmentNumber;
     }
 
-    public @NotNull BigDecimal getArea() {
+    public BigDecimal getArea() {
         return area;
     }
 
@@ -47,7 +44,7 @@ public class ApartmentDto {
         return pets;
     }
 
-    public @NotBlank(message = "Address cannot be blank") String getBuildingAddress() {
+    public String getBuildingAddress() {
         return buildingAddress;
     }
 

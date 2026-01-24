@@ -22,15 +22,14 @@ public class CreateMonthlyApartmentTaxDto {
         this.apartmentId = apartmentId;
     }
 
-    public @NotNull YearMonth getPaymentForMonth() {
+    public YearMonth getPaymentForMonth() {
         return paymentForMonth;
     }
 
-    public @NotNull @PositiveOrZero BigDecimal getPaymentValue() {
+    public BigDecimal getPaymentValue() {
         return paymentValue;
     }
 
-    @NotNull
     public long getApartmentId() {
         return apartmentId;
     }

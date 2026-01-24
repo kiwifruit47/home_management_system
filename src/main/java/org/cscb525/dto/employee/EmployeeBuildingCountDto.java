@@ -14,11 +14,10 @@ public class EmployeeBuildingCountDto {
         this.buildings = buildings;
     }
 
-    public @NotBlank(message = "Employee name cannot be blank") String getName() {
+    public String getName() {
         return name;
     }
 
-    @PositiveOrZero
     public int getBuildings() {
         return buildings;
     }

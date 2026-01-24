@@ -20,22 +20,18 @@ public class CreateOccupantDto {
         this.apartmentId = apartmentId;
     }
 
-    @NotNull
-    @PositiveOrZero
     public int getAge() {
         return age;
     }
 
-    public @NotBlank(message = "Occupant name cannot be blank") String getName() {
+    public String getName() {
         return name;
     }
 
-    @NotNull
     public boolean usesElevator() {
         return usesElevator;
     }
 
-    @NotNull
     public int getApartmentId() {
         return apartmentId;
     }

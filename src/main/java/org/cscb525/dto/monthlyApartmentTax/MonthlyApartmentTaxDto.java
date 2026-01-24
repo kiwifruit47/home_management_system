@@ -28,7 +28,7 @@ public class MonthlyApartmentTaxDto {
         this.address = address;
     }
 
-    public @NotNull YearMonth getPaymentForMonth() {
+    public YearMonth getPaymentForMonth() {
         return paymentForMonth;
     }
 
@@ -36,7 +36,7 @@ public class MonthlyApartmentTaxDto {
         return isPaid;
     }
 
-    public @NotNull @PositiveOrZero BigDecimal getPaymentValue() {
+    public BigDecimal getPaymentValue() {
         return paymentValue;
     }
 

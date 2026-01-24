@@ -31,7 +31,7 @@ public class MonthlyApartmentTaxEmployeeDto {
         this.employeeName = employeeName;
     }
 
-    public @NotNull YearMonth getPaymentForMonth() {
+    public YearMonth getPaymentForMonth() {
         return paymentForMonth;
     }
 
@@ -39,20 +39,19 @@ public class MonthlyApartmentTaxEmployeeDto {
         return isPaid;
     }
 
-    public @NotNull @PositiveOrZero BigDecimal getPaymentValue() {
+    public BigDecimal getPaymentValue() {
         return paymentValue;
     }
 
-    @NotNull
     public int getApartmentNumber() {
         return apartmentNumber;
     }
 
-    public @NotBlank(message = "Address cannot be blank") String getAddress() {
+    public String getAddress() {
         return address;
     }
 
-    public @NotBlank(message = "Employee name cannot be blank") String getEmployeeName() {
+    public String getEmployeeName() {
         return employeeName;
     }
 

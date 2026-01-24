@@ -17,8 +17,6 @@ public class UpdateCompanyDto {
         this.name = name;
     }
 
-    @NotNull
-    @Positive
     public long getId() {
         return id;
     }
@@ -27,7 +25,7 @@ public class UpdateCompanyDto {
         this.id = id;
     }
 
-    public @NotBlank(message = "Company name cannot be blank") @Pattern(regexp = "^[A-Z][a-zA-Z]*$", message = "Company name must start with a capital letter and consist only of letters") String getName() {
+    public String getName() {
         return name;
     }
 

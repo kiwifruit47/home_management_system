@@ -20,22 +20,18 @@ public class UpdateOccupantDto {
         this.usesElevator = usesElevator;
     }
 
-    @NotNull
     public long getId() {
         return id;
     }
 
-    @NotNull
-    @PositiveOrZero
     public int getAge() {
         return age;
     }
 
-    public @NotBlank(message = "Occupant name cannot be blank") String getName() {
+    public String getName() {
         return name;
     }
 
-    @NotNull
     public boolean isUsesElevator() {
         return usesElevator;
     }

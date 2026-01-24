@@ -16,11 +16,11 @@ public class CompanyIncomeDto {
         this.income = income;
     }
 
-    public @NotBlank(message = "Company name cannot be blank") @Pattern(regexp = "^[A-Z][a-zA-Z]*$", message = "Company name must start with a capital letter and consist only of letters") String getCompanyName() {
+    public String getCompanyName() {
         return companyName;
     }
 
-    public @PositiveOrZero BigDecimal getIncome() {
+    public BigDecimal getIncome() {
         return income;
     }
 

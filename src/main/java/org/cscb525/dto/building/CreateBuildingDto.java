@@ -23,7 +23,7 @@ public class CreateBuildingDto {
     @NotNull
     private long employeeId;
 
-    public @NotBlank(message = "Address cannot be blank") String getAddress() {
+    public String getAddress() {
         return address;
     }
 
@@ -31,8 +31,6 @@ public class CreateBuildingDto {
         this.address = address;
     }
 
-    @NotNull
-    @Positive
     public int getFloors() {
         return floors;
     }
@@ -41,7 +39,7 @@ public class CreateBuildingDto {
         this.floors = floors;
     }
 
-    public @NotNull @Positive BigDecimal getMonthlyTaxPerPerson() {
+    public BigDecimal getMonthlyTaxPerPerson() {
         return monthlyTaxPerPerson;
     }
 
@@ -49,7 +47,7 @@ public class CreateBuildingDto {
         this.monthlyTaxPerPerson = monthlyTaxPerPerson;
     }
 
-    public @NotNull @Positive BigDecimal getMonthlyTaxPerPet() {
+    public BigDecimal getMonthlyTaxPerPet() {
         return monthlyTaxPerPet;
     }
 
@@ -57,7 +55,7 @@ public class CreateBuildingDto {
         this.monthlyTaxPerPet = monthlyTaxPerPet;
     }
 
-    public @NotNull @Positive BigDecimal getMonthlyTaxPerM2() {
+    public BigDecimal getMonthlyTaxPerM2() {
         return monthlyTaxPerM2;
     }
 
@@ -65,7 +63,6 @@ public class CreateBuildingDto {
         this.monthlyTaxPerM2 = monthlyTaxPerM2;
     }
 
-    @NotNull
     public long getEmployeeId() {
         return employeeId;
     }
