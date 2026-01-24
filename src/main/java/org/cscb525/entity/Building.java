@@ -13,7 +13,6 @@ import java.util.Set;
 public class Building extends BaseEntity {
     @NotBlank(message = "Address cannot be blank")
     private String address;
-    @NotNull
     @Positive
     private int floors;
     @NotNull

@@ -9,6 +9,7 @@ import org.cscb525.dto.employee.CreateEmployeeDto;
 import org.cscb525.dto.employee.EmployeeBuildingCountDto;
 import org.cscb525.dto.employee.EmployeeDto;
 import org.cscb525.dto.employee.UpdateEmployeeDto;
+import org.cscb525.entity.Building;
 import org.cscb525.entity.Company;
 import org.cscb525.entity.Employee;
 import org.hibernate.Session;
@@ -136,7 +137,7 @@ public class EmployeeDao {
             CriteriaQuery<EmployeeDto> cr = cb.createQuery(EmployeeDto.class);
             Root<Employee> root = cr.from(Employee.class);
 
-            Join<?, ?> company = root.join("company");
+            Join<Employee, Company> company = root.join("company");
 
             cr.select(cb.construct(
                             EmployeeDto.class,
@@ -154,8 +155,8 @@ public class EmployeeDao {
             CriteriaQuery<EmployeeBuildingCountDto> cr = cb.createQuery(EmployeeBuildingCountDto.class);
             Root<Company> root = cr.from(Company.class);
 
-            Join<?, ?> employee = root.join("employees");
-            Join<?, ?> building = employee.join("buildings");
+            Join<Company, Employee> employee = root.join("employees");
+            Join<Employee, Building> building = employee.join("buildings");
 
             Expression<Long> buildingCount = cb.count(building);
 

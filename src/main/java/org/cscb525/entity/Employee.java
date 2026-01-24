@@ -6,6 +6,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 import java.util.Set;
 
@@ -13,6 +14,7 @@ import java.util.Set;
 @Table(name = "employee")
 public class Employee extends BaseEntity {
     @NotBlank(message = "Employee name cannot be blank")
+    @Pattern(regexp = "^[A-Z][a-zA-Z ]*$", message = "Employee name has to start with capital letter and consist only of letters.")
     private String name;
     @NotNull
     @ManyToOne

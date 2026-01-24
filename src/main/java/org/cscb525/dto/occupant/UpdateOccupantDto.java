@@ -5,9 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
 public class UpdateOccupantDto {
-    @NotNull
     private final long id;
-    @NotNull
     @PositiveOrZero
     private final int age;
     @NotBlank(message = "Occupant name cannot be blank")

@@ -6,12 +6,11 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 public class UpdateMonthlyApartmentTaxDto {
+    private final long id;
     @NotNull
-    private long id;
+    private final boolean isPaid;
     @NotNull
-    private boolean isPaid;
-    @NotNull
-    private LocalDate dateOfPayment;
+    private final LocalDate dateOfPayment;
 
     public UpdateMonthlyApartmentTaxDto(long id, boolean isPaid, LocalDate dateOfPayment) {
         this.id = id;

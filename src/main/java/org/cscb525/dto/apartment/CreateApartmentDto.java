@@ -1,6 +1,7 @@
 package org.cscb525.dto.apartment;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 
 import java.math.BigDecimal;
 
@@ -11,6 +12,7 @@ public class CreateApartmentDto {
     private final int apartmentNumber;
     @NotNull
     private final BigDecimal area;
+    @PositiveOrZero
     private final int pets;
     private final long buildingId;
 

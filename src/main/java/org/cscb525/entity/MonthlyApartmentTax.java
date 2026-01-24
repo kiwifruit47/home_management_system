@@ -14,7 +14,6 @@ public class MonthlyApartmentTax extends BaseEntity{
     @NotNull
     @Column(name = "payment_for_month")
     private YearMonth paymentForMonth;
-    @NotNull
     @Column(name = "is_paid")
     private boolean isPaid = false;
     @Column(name = "date_of_payment")

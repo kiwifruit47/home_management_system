@@ -9,6 +9,7 @@ import org.cscb525.dto.building.CreateBuildingDto;
 import org.cscb525.dto.building.UpdateBuildingDto;
 import org.cscb525.dto.employee.EmployeeDto;
 import org.cscb525.entity.Building;
+import org.cscb525.entity.Company;
 import org.cscb525.entity.Employee;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -65,7 +66,6 @@ public class BuildingDao {
                 );
             }
 
-            building.setFloors(buildingDto.getFloors());
             building.setMonthlyTaxPerPerson(buildingDto.getMonthlyTaxPerPerson());
             building.setMonthlyTaxPerM2(buildingDto.getMonthlyTaxPerM2());
             building.setMonthlyTaxPerPet(buildingDto.getMonthlyTaxPerPet());
@@ -154,12 +154,10 @@ public class BuildingDao {
             CriteriaQuery<Long> cr = cb.createQuery(Long.class);
             Root<Building> root = cr.from(Building.class);
 
-            Join<?, ?> company = root.join("company");
+            Join<Building, Employee> employee = root.join("employee");
+            Join<Employee, Company> company = employee.join("company");
 
-            cr.select(cb.construct(
-                            Long.class,
-                            cb.count(root)
-                    ))
+            cr.select(cb.count(root))
                     .where(cb.equal(company.get("id"), companyId));
 
             return session.createQuery(cr).getSingleResult();
@@ -172,7 +170,7 @@ public class BuildingDao {
             CriteriaQuery<BuildingDto> cr = cb.createQuery(BuildingDto.class);
             Root<Building> root = cr.from(Building.class);
 
-            Join<?, ?> employee = root.join("employee");
+            Join<Building, Employee> employee = root.join("employee");
 
             cr.select(cb.construct(
                             BuildingDto.class,
@@ -189,8 +187,8 @@ public class BuildingDao {
             CriteriaQuery<BuildingDto> cr = cb.createQuery(BuildingDto.class);
             Root<Building> root = cr.from(Building.class);
 
-            Join<?, ?> employee = root.join("employee");
-            Join<?, ?> company = employee.join("company");
+            Join<Building, Employee> employee = root.join("employee");
+            Join<Employee, Company> company = employee.join("company");
 
             cr.select(cb.construct(
                             BuildingDto.class,

@@ -80,7 +80,7 @@ public class OccupantDao {
             CriteriaQuery<OccupantDto> cr = cb.createQuery(OccupantDto.class);
             Root<Occupant> root = cr.from(Occupant.class);
 
-            Join<?, ?> apartment = root.join("apartment");
+            Join<Occupant, Apartment> apartment = root.join("apartment");
 
             cr.select(cb.construct(
                             OccupantDto.class,
@@ -102,7 +102,7 @@ public class OccupantDao {
             CriteriaQuery<OccupantDto> cr = cb.createQuery(OccupantDto.class);
             Root<Occupant> root = cr.from(Occupant.class);
 
-            Join<?, ?> apartment = root.join("apartment");
+            Join<Occupant, Apartment> apartment = root.join("apartment");
 
             cr.select(cb.construct(
                             OccupantDto.class,
@@ -150,8 +150,8 @@ public class OccupantDao {
             CriteriaQuery<OccupantDto> cr = cb.createQuery(OccupantDto.class);
             Root<Building> root = cr.from(Building.class);
 
-            Join<?, ?> apartment = root.join("apartments");
-            Join<?, ?> occupant = apartment.join("occupants");
+            Join<Building, Apartment> apartment = root.join("apartments");
+            Join<Apartment, Occupant> occupant = apartment.join("occupants");
 
             cr.select(cb.construct(
                             OccupantDto.class,
@@ -172,8 +172,8 @@ public class OccupantDao {
             CriteriaQuery<OccupantDto> cr = cb.createQuery(OccupantDto.class);
             Root<Building> root = cr.from(Building.class);
 
-            Join<?, ?> apartment = root.join("apartments");
-            Join<?, ?> occupant = apartment.join("occupants");
+            Join<Building, Apartment> apartment = root.join("apartments");
+            Join<Apartment, Occupant> occupant = apartment.join("occupants");
 
             cr.select(cb.construct(
                             OccupantDto.class,
@@ -194,13 +194,10 @@ public class OccupantDao {
             CriteriaQuery<Long> cr = cb.createQuery(Long.class);
             Root<Building> root = cr.from(Building.class);
 
-            Join<?, ?> apartment = root.join("apartments");
-            Join<?, ?> occupant = apartment.join("occupants");
+            Join<Building, Apartment> apartment = root.join("apartments");
+            Join<Apartment, Occupant> occupant = apartment.join("occupants");
 
-            cr.select(cb.construct(
-                            Long.class,
-                            cb.count(occupant)
-                    ))
+            cr.select(cb.count(occupant))
                     .where(cb.equal(root.get("id"), buildingId));
             return session.createQuery(cr).getSingleResult();
         }

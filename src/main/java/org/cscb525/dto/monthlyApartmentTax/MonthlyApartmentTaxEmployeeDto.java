@@ -2,6 +2,7 @@ package org.cscb525.dto.monthlyApartmentTax;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 
 import java.math.BigDecimal;
@@ -14,7 +15,7 @@ public class MonthlyApartmentTaxEmployeeDto {
     @NotNull
     @PositiveOrZero
     private BigDecimal paymentValue;
-    @NotNull
+    @Positive
     private int apartmentNumber;
     @NotBlank(message = "Address cannot be blank")
     private String address;

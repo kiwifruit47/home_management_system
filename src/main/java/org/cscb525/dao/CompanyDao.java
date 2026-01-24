@@ -9,7 +9,7 @@ import org.cscb525.dto.company.CompanyDto;
 import org.cscb525.dto.company.CompanyIncomeDto;
 import org.cscb525.dto.company.CreateCompanyDto;
 import org.cscb525.dto.company.UpdateCompanyDto;
-import org.cscb525.entity.Company;
+import org.cscb525.entity.*;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -108,10 +108,10 @@ public class CompanyDao {
             CriteriaQuery<CompanyIncomeDto> cr = cb.createQuery(CompanyIncomeDto.class);
             Root<Company> root = cr.from(Company.class);
 
-            Join<?, ?> employee = root.join("employees");
-            Join<?, ?> building = employee.join("buildings");
-            Join<?, ?> apartment = building.join("apartments");
-            Join<?, ?> monthlyApartmentTax = apartment.join("monthlyApartmentTaxes");
+            Join<Company, Employee> employee = root.join("employees", JoinType.LEFT);
+            Join<Employee, Building> building = employee.join("buildings", JoinType.LEFT);
+            Join<Building, Apartment> apartment = building.join("apartments", JoinType.LEFT);
+            Join<Apartment, MonthlyApartmentTax> monthlyApartmentTax = apartment.join("monthlyApartmentTaxes", JoinType.LEFT);
 
             Expression<BigDecimal> income =
                     cb.coalesce(cb.sum(monthlyApartmentTax.get("paymentValue")), BigDecimal.ZERO);
@@ -121,7 +121,7 @@ public class CompanyDao {
                     root.get("name"),
                     income
             ))
-            .groupBy(root.get("name"))
+            .groupBy(root.get("id"),root.get("name"))
                     .orderBy(cb.desc(income));
 
             return session.createQuery(cr).getResultList();

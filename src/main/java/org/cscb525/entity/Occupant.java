@@ -9,12 +9,10 @@ import jakarta.validation.constraints.PositiveOrZero;
 @Entity
 @Table(name = "occupant")
 public class Occupant extends BaseEntity {
-    @NotNull
     @PositiveOrZero
     private int age;
     @NotBlank(message = "Occupant name cannot be blank")
     private String name;
-    @NotNull
     @Column(name = "uses_elevator")
     private boolean usesElevator = true;
     @NotNull

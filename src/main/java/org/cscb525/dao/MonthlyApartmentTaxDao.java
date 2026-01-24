@@ -5,9 +5,7 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.criteria.*;
 import org.cscb525.config.SessionFactoryUtil;
 import org.cscb525.dto.monthlyApartmentTax.*;
-import org.cscb525.entity.Apartment;
-import org.cscb525.entity.MonthlyApartmentTax;
-import org.cscb525.entity.Occupant;
+import org.cscb525.entity.*;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -77,9 +75,8 @@ public class MonthlyApartmentTaxDao {
             CriteriaQuery<MonthlyApartmentTaxDto> cr = cb.createQuery(MonthlyApartmentTaxDto.class);
             Root<MonthlyApartmentTax> root = cr.from(MonthlyApartmentTax.class);
 
-            Join<?, ?> apartment = root.join("apartment");
-            Join<?, ?> employee = apartment.join("employee");
-            Join<?, ?> building = employee.join("building");
+            Join<MonthlyApartmentTax, Apartment> apartment = root.join("apartment");
+            Join<Apartment, Building> building = apartment.join("building");
 
             cr.select(cb.construct(
                     MonthlyApartmentTaxDto.class,
@@ -103,10 +100,8 @@ public class MonthlyApartmentTaxDao {
             CriteriaQuery<MonthlyApartmentTaxDto> cr = cb.createQuery(MonthlyApartmentTaxDto.class);
             Root<MonthlyApartmentTax> root = cr.from(MonthlyApartmentTax.class);
 
-            Join<?, ?> apartment = root.join("apartment");
-            Join<?, ?> employee = apartment.join("employee");
-            Join<?, ?> building = employee.join("building");
-
+            Join<MonthlyApartmentTax, Apartment> apartment = root.join("apartment");
+            Join<Apartment, Building> building = apartment.join("building");
             cr.select(cb.construct(
                             MonthlyApartmentTaxDto.class,
                             root.get("paymentForMonth"),
@@ -176,10 +171,10 @@ public class MonthlyApartmentTaxDao {
             CriteriaQuery<MonthlyApartmentTaxEmployeeDto> cr = cb.createQuery(MonthlyApartmentTaxEmployeeDto.class);
             Root<MonthlyApartmentTax> root = cr.from(MonthlyApartmentTax.class);
 
-            Join<?, ?> apartment = root.join("apartment");
-            Join<?, ?> building = apartment.join("building");
-            Join<?, ?> employee = building.join("employee");
-            Join<?, ?> company = employee.join("company");
+            Join<MonthlyApartmentTax, Apartment> apartment = root.join("apartment");
+            Join<Apartment, Building> building = apartment.join("building");
+            Join<Building, Employee> employee = building.join("employee");
+            Join<Employee, Company> company = employee.join("company");
 
             cr.select(cb.construct(
                     MonthlyApartmentTaxEmployeeDto.class,
@@ -256,10 +251,10 @@ public class MonthlyApartmentTaxDao {
             CriteriaQuery<MonthlyApartmentTaxReceiptDto> cr = cb.createQuery(MonthlyApartmentTaxReceiptDto.class);
             Root<MonthlyApartmentTax> root = cr.from(MonthlyApartmentTax.class);
 
-            Join<?, ?> apartment = root.join("apartment");
-            Join<?, ?> building = apartment.join("building");
-            Join<?, ?> employee = building.join("employee");
-            Join<?, ?> company = employee.join("company");
+            Join<MonthlyApartmentTax, Apartment> apartment = root.join("apartment");
+            Join<Apartment, Building> building = apartment.join("building");
+            Join<Building, Employee> employee = building.join("employee");
+            Join<Employee, Company> company = employee.join("company");
 
             cr.select(cb.construct(
                     MonthlyApartmentTaxReceiptDto.class,
@@ -298,10 +293,10 @@ public class MonthlyApartmentTaxDao {
              CriteriaQuery<MonthlyApartmentTaxReceiptDto> cr = cb.createQuery(MonthlyApartmentTaxReceiptDto.class);
              Root<MonthlyApartmentTax> root = cr.from(MonthlyApartmentTax.class);
 
-             Join<?, ?> apartment = root.join("apartment");
-             Join<?, ?> building = apartment.join("building");
-             Join<?, ?> employee = building.join("employee");
-             Join<?, ?> company = employee.join("company");
+             Join<MonthlyApartmentTax, Apartment> apartment = root.join("apartment");
+             Join<Apartment, Building> building = apartment.join("building");
+             Join<Building, Employee> employee = building.join("employee");
+             Join<Employee, Company> company = employee.join("company");
 
              cr.select(cb.construct(
                      MonthlyApartmentTaxReceiptDto.class,
@@ -329,8 +324,15 @@ public class MonthlyApartmentTaxDao {
             CriteriaQuery<CalculateMonthlyApartmentTaxDto> cr = cb.createQuery(CalculateMonthlyApartmentTaxDto.class);
             Root<Apartment> root = cr.from(Apartment.class);
 
-            Join<?, ?> building = root.join("building");
+            Join<Apartment, Building> building = root.join("building");
             Join<Apartment, Occupant> occupants = root.join("occupants", JoinType.LEFT);
+
+            occupants.on(
+                    cb.and(
+                            cb.greaterThan(occupants.get("age"), 7),
+                            cb.isTrue(occupants.get("usesElevator"))
+                    )
+            );
 
             cr.select(cb.construct(
                     CalculateMonthlyApartmentTaxDto.class,
@@ -341,7 +343,14 @@ public class MonthlyApartmentTaxDao {
                     building.get("monthlyTaxPerPet"),
                     building.get("monthlyTaxPerM2")
             ))
-                    .where(cb.equal(root.get("id"), apartmentId));
+                    .where(cb.equal(root.get("id"), apartmentId))
+                    .groupBy(
+                            root.get("area"),
+                            root.get("pets"),
+                            building.get("monthlyTaxPerPerson"),
+                            building.get("monthlyTaxPerPet"),
+                            building.get("monthlyTaxPerM2")
+                    );
             return session.createQuery(cr).getSingleResult();
         } catch (NoResultException e) {
             throw new EntityNotFoundException("Apartment with id " + apartmentId + " not found.");

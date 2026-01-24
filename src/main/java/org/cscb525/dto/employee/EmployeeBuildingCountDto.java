@@ -1,12 +1,10 @@
 package org.cscb525.dto.employee;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.*;
 
 public class EmployeeBuildingCountDto {
     @NotBlank(message = "Employee name cannot be blank")
+    @Pattern(regexp = "^[A-Z][a-zA-Z ]*$", message = "Employee name has to start with capital letter and consist only of letters.")
     private final String name;
     @PositiveOrZero
     private final int buildings;

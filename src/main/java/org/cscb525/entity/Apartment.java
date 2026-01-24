@@ -2,6 +2,7 @@ package org.cscb525.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 
 import java.math.BigDecimal;
@@ -10,12 +11,13 @@ import java.util.Set;
 @Entity
 @Table(name = "apartment")
 public class Apartment extends BaseEntity {
-    @NotNull
+    @Positive
     private int floor;
-    @NotNull
+    @Positive
     @Column(name = "apartment_number")
     private int apartmentNumber;
     @NotNull
+    @Positive
     private BigDecimal area;
     @PositiveOrZero
     private int pets;

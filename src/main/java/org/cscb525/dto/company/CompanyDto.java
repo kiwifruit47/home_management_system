@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Pattern;
 
 public class CompanyDto {
     @NotBlank(message = "Company name cannot be blank")
-    @Pattern(regexp = "^[A-Z][a-zA-Z]*$", message = "Company name must start with a capital letter and consist only of letters")
+    @Pattern(regexp = "^[A-Z][a-zA-Z0-9 ]*$", message = "Company name must start with a capital letter and consist only of letters, numbers and spaces")
     private String name;
 
     public CompanyDto(String name) {

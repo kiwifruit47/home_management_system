@@ -8,11 +8,13 @@ import java.math.BigDecimal;
 
 public class CalculateMonthlyApartmentTaxDto {
     @NotNull
+    @Positive
     private final BigDecimal area;
     @PositiveOrZero
     private final int pets;
     @PositiveOrZero
-    private final int occupantCount;
+    //above 7 years old && use elevator
+    private final int taxedOccupantCount;
     @Positive
     private final BigDecimal monthlyTaxPerPerson;
     @NotNull
@@ -25,7 +27,7 @@ public class CalculateMonthlyApartmentTaxDto {
     public CalculateMonthlyApartmentTaxDto(BigDecimal area, int pets, int occupantCount, BigDecimal monthlyTaxPerPerson, BigDecimal monthlyTaxPerPet, BigDecimal monthlyTaxPerM2) {
         this.area = area;
         this.pets = pets;
-        this.occupantCount = occupantCount;
+        this.taxedOccupantCount = occupantCount;
         this.monthlyTaxPerPerson = monthlyTaxPerPerson;
         this.monthlyTaxPerPet = monthlyTaxPerPet;
         this.monthlyTaxPerM2 = monthlyTaxPerM2;
@@ -41,8 +43,8 @@ public class CalculateMonthlyApartmentTaxDto {
     }
 
     @PositiveOrZero
-    public int getOccupantCount() {
-        return occupantCount;
+    public int getTaxedOccupantCount() {
+        return taxedOccupantCount;
     }
 
     public @Positive BigDecimal getMonthlyTaxPerPerson() {

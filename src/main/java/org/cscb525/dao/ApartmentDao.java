@@ -265,7 +265,7 @@ public class ApartmentDao {
             CriteriaQuery<Long> cr = cb.createQuery(Long.class);
             Root<Apartment> root = cr.from(Apartment.class);
 
-            Join<?, ?> building = root.join("building");
+            Join<Apartment, Building> building = root.join("building");
 
             cr.select(cb.construct(
                             Long.class,
@@ -283,7 +283,7 @@ public class ApartmentDao {
             CriteriaQuery<ApartmentDto> cr = cb.createQuery(ApartmentDto.class);
             Root<Apartment> root = cr.from(Apartment.class);
 
-            Join<?, ?> building = root.join("building");
+            Join<Apartment, Building> building = root.join("building");
 
             cr.select(cb.construct(
                     ApartmentDto.class,

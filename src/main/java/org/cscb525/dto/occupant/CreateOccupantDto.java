@@ -5,12 +5,10 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
 public class CreateOccupantDto {
-    @NotNull
     @PositiveOrZero
     private final int age;
     @NotBlank(message = "Occupant name cannot be blank")
     private final String name;
-    @NotNull
     private final boolean usesElevator;
     @NotNull
     private final int apartmentId;

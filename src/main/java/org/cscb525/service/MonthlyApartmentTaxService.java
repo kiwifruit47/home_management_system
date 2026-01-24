@@ -41,7 +41,7 @@ public class MonthlyApartmentTaxService {
         CalculateMonthlyApartmentTaxDto calculateTaxDto = MonthlyApartmentTaxDao.findDataForTaxCalc(apartmentId);
 
         BigDecimal area = calculateTaxDto.getArea();
-        BigDecimal occupantCount = BigDecimal.valueOf(calculateTaxDto.getOccupantCount());
+        BigDecimal occupantCount = BigDecimal.valueOf(calculateTaxDto.getTaxedOccupantCount());
         BigDecimal petCount = BigDecimal.valueOf(calculateTaxDto.getPets());
         BigDecimal taxPerM2 = calculateTaxDto.getMonthlyTaxPerM2();
         BigDecimal taxPerPerson = calculateTaxDto.getMonthlyTaxPerPerson();
