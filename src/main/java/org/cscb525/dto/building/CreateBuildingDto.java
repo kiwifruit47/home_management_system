@@ -23,6 +23,15 @@ public class CreateBuildingDto {
     @NotNull
     private long employeeId;
 
+    public CreateBuildingDto(String address, int floors, BigDecimal monthlyTaxPerPerson, BigDecimal monthlyTaxPerPet, BigDecimal monthlyTaxPerM2, long employeeId) {
+        this.address = address;
+        this.floors = floors;
+        this.monthlyTaxPerPerson = monthlyTaxPerPerson;
+        this.monthlyTaxPerPet = monthlyTaxPerPet;
+        this.monthlyTaxPerM2 = monthlyTaxPerM2;
+        this.employeeId = employeeId;
+    }
+
     public String getAddress() {
         return address;
     }

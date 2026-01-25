@@ -2,10 +2,7 @@ package org.cscb525.dao;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.NoResultException;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 import jakarta.validation.Valid;
 import org.cscb525.config.SessionFactoryUtil;
 import org.cscb525.dto.apartment.ApartmentDto;
@@ -29,9 +26,9 @@ public class ApartmentDao {
                     apartmentDto.getBuildingId()
             );
 
-            if (building == null) {
+            if (building == null || building.isDeleted()) {
                 throw new EntityNotFoundException(
-                        "Building with id " + apartmentDto.getBuildingId() + " does not exist."
+                        "Active building with id " + apartmentDto.getBuildingId() + " does not exist."
                 );
             }
 
@@ -59,9 +56,9 @@ public class ApartmentDao {
             transaction = session.beginTransaction();
 
             Apartment apartment = session.get(Apartment.class, apartmentId);
-            if (apartment == null) {
+            if (apartment == null || apartment.isDeleted()) {
                 throw new EntityNotFoundException(
-                        "No apartment with id " + apartmentId + " found."
+                        "No active apartment with id " + apartmentId + " found."
                 );
             }
 
@@ -85,8 +82,8 @@ public class ApartmentDao {
             Apartment apartment = session.get(Apartment.class, apartmentId);
             Owner owner = session.get(Owner.class, ownerId);
 
-            if (apartment == null || owner == null) {
-                throw new EntityNotFoundException("Apartment or owner not found.");
+            if (apartment == null || owner == null || apartment.isDeleted() || owner.isDeleted()) {
+                throw new EntityNotFoundException("Apartment or owner not found or not active.");
             }
 
             apartment.getOwners().add(owner);
@@ -110,8 +107,8 @@ public class ApartmentDao {
             Apartment apartment = session.get(Apartment.class, apartmentId);
             Owner owner = session.get(Owner.class, ownerId);
 
-            if (apartment == null || owner == null) {
-                throw new EntityNotFoundException("Apartment or owner not found.");
+            if (apartment == null || owner == null || apartment.isDeleted() || owner.isDeleted()) {
+                throw new EntityNotFoundException("Apartment or owner not found or not active.");
             }
 
             if (!apartment.getOwners().contains(owner)) {
@@ -137,8 +134,8 @@ public class ApartmentDao {
             transaction = session.beginTransaction();
 
             Apartment apartment = session.get(Apartment.class, apartmentId);
-            if (apartment == null) {
-                throw new EntityNotFoundException("Apartment not found.");
+            if (apartment == null || apartment.isDeleted()) {
+                throw new EntityNotFoundException("Active apartment with id " + apartmentId + " not found.");
             }
 
             Occupant occupant = new Occupant();
@@ -181,7 +178,7 @@ public class ApartmentDao {
     }
 
     public static ApartmentDto findApartmentById(long id) {
-        try(Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
+        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             CriteriaBuilder cb = session.getCriteriaBuilder();
             CriteriaQuery<ApartmentDto> cr = cb.createQuery(ApartmentDto.class);
             Root<Apartment> root = cr.from(Apartment.class);
@@ -194,11 +191,14 @@ public class ApartmentDao {
                     root.get("pets"),
                     root.get("building").get("address")
             ))
-                    .where(cb.equal(root.get("id"), id));
+                    .where(cb.and(
+                            cb.equal(root.get("id"), id),
+                            cb.isFalse(root.get("deleted"))
+                    ));
 
             return session.createQuery(cr).getSingleResult();
         } catch (NoResultException e) {
-            throw new EntityNotFoundException("No apartment with id " + id + " found.");
+            throw new EntityNotFoundException("No active apartment with id " + id + " found.");
         }
     }
     public static List<ApartmentDto> findAllApartments() {
@@ -226,7 +226,8 @@ public class ApartmentDao {
             CriteriaQuery<Long> cr = cb.createQuery(Long.class);
             Root<Apartment> root = cr.from(Apartment.class);
 
-            cr.select(root.get("id"));
+            cr.select(root.get("id"))
+                    .where(cb.isFalse(root.get("deleted")));
 
             return session.createQuery(cr).getResultList();
         }
@@ -245,6 +246,40 @@ public class ApartmentDao {
             transaction.commit();
         }
     }
+
+    public static void deleteAllApartmentsByCompany(Session session, long companyId) {
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaUpdate<Apartment> update = cb.createCriteriaUpdate(Apartment.class);
+        Root<Apartment> root = update.from(Apartment.class);
+
+        Join<Apartment, Building> building = root.join("building");
+        Join<Building, Employee> employee = building.join("employee");
+        Join<Employee, Company> company = employee.join("company");
+
+        update.set(root.get("deleted"), true)
+                .where(cb.and(
+                        cb.equal(company.get("id"), companyId),
+                        cb.isFalse(root.get("deleted"))
+                ));
+
+        session.createMutationQuery(update).executeUpdate();
+    }
+
+    public static void deleteAllApartmentsByBuilding(Session session, long buildingId) {
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaUpdate<Apartment> update = cb.createCriteriaUpdate(Apartment.class);
+        Root<Apartment> root = update.from(Apartment.class);
+
+        Join<Apartment, Building> building = root.join("building");
+
+        update.set(root.get("deleted"), true)
+                .where(cb.and(
+                        cb.equal(building.get("id"), buildingId),
+                        cb.isFalse(root.get("deleted"))
+                ));
+        session.createMutationQuery(update).executeUpdate();
+    }
+
     public static void restoreApartment(long id) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
@@ -271,7 +306,10 @@ public class ApartmentDao {
                             Long.class,
                             cb.count(root)
                     ))
-                    .where(cb.equal(building.get("id"), buildingId));
+                    .where(cb.and(
+                            cb.equal(building.get("id"), buildingId),
+                            cb.isFalse(root.get("deleted"))
+                    ));
 
             return session.createQuery(cr).getSingleResult();
         }
@@ -293,7 +331,12 @@ public class ApartmentDao {
                     root.get("pets"),
                     root.get("building").get("address")
             ))
-                    .where(cb.equal(building.get("id"), buildingId));
+                    .where(
+                            cb.and(
+                                    cb.equal(building.get("id"), buildingId),
+                                    cb.isFalse(root.get("deleted"))
+                            )
+                    );
 
             return session.createQuery(cr).getResultList();
         }

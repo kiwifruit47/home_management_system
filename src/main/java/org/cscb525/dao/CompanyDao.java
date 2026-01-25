@@ -31,8 +31,8 @@ public class CompanyDao {
         try(Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
             Company company = session.get(Company.class, companyDto.getId());
-            if (company == null) {
-                throw new EntityNotFoundException("No company with id " + companyDto.getId() + " found");
+            if (company == null || company.isDeleted()) {
+                throw new EntityNotFoundException("No active company with id " + companyDto.getId() + " found");
             }
 
             company.setName(companyDto.getName());
@@ -50,10 +50,13 @@ public class CompanyDao {
                     CompanyDto.class,
                     root.get("name")
             ))
-                    .where(cb.equal(root.get("id"), id));
+                    .where(cb.and(
+                            cb.equal(root.get("id"), id),
+                            cb.isFalse(root.get("deleted"))
+                    ));
             return session.createQuery(cr).getSingleResult();
         } catch (NoResultException e) {
-            throw new EntityNotFoundException("No company with id " + id + " found.");
+            throw new EntityNotFoundException("No active company with id " + id + " found.");
         }
     }
 
@@ -72,19 +75,10 @@ public class CompanyDao {
         }
     }
 
-    //throws exception if nothing is deleted (no company with such id found)
-    public static void deleteCompany(long id) {
-        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            Transaction transaction = session.beginTransaction();
-            int updatedRows = session.createQuery("update Company c set c.deleted = true where c.id = :id")
-                    .setParameter("id", id)
-                    .executeUpdate();
-            if (updatedRows == 0) {
-                transaction.rollback();
-                throw new EntityNotFoundException("No company with id " + id + " found.");
-            }
-            transaction.commit();
-        }
+    public static void deleteCompany(Session session, long id) {
+        session.createQuery("update Company c set c.deleted = true where c.id = :id")
+                .setParameter("id", id)
+                .executeUpdate();
     }
 
     //throws exception if nothing is restored (no company with such id found)
@@ -121,7 +115,8 @@ public class CompanyDao {
                     root.get("name"),
                     income
             ))
-            .groupBy(root.get("id"),root.get("name"))
+                    .where(cb.isFalse(root.get("deleted")))
+                    .groupBy(root.get("id"),root.get("name"))
                     .orderBy(cb.desc(income));
 
             return session.createQuery(cr).getResultList();

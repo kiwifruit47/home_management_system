@@ -7,7 +7,6 @@ import org.cscb525.config.SessionFactoryUtil;
 import org.cscb525.dto.building.BuildingDto;
 import org.cscb525.dto.building.CreateBuildingDto;
 import org.cscb525.dto.building.UpdateBuildingDto;
-import org.cscb525.dto.employee.EmployeeDto;
 import org.cscb525.entity.Building;
 import org.cscb525.entity.Company;
 import org.cscb525.entity.Employee;
@@ -53,23 +52,15 @@ public class BuildingDao {
             transaction = session.beginTransaction();
 
             Building building = session.get(Building.class, buildingDto.getId());
-            if (building == null) {
+            if (building == null || building.isDeleted()) {
                 throw new EntityNotFoundException(
-                        "No building with id " + buildingDto.getId() + " found."
-                );
-            }
-
-            Employee employee = session.get(Employee.class, buildingDto.getEmployeeId());
-            if (employee == null) {
-                throw new EntityNotFoundException(
-                        "No employee with id " + buildingDto.getEmployeeId() + " found."
+                        "No active building with id " + buildingDto.getId() + " found."
                 );
             }
 
             building.setMonthlyTaxPerPerson(buildingDto.getMonthlyTaxPerPerson());
             building.setMonthlyTaxPerM2(buildingDto.getMonthlyTaxPerM2());
             building.setMonthlyTaxPerPet(buildingDto.getMonthlyTaxPerPet());
-            building.setEmployee(employee);
 
             transaction.commit();
         } catch (RuntimeException e) {
@@ -88,6 +79,7 @@ public class BuildingDao {
 
             cr.select(cb.construct(
                     BuildingDto.class,
+                    root.get("id"),
                     root.get("address"),
                     root.get("floors"),
                     root.get("monthlyTaxPerPerson"),
@@ -95,10 +87,13 @@ public class BuildingDao {
                     root.get("monthlyTaxPerM2"),
                     root.get("employee").get("name")
             ))
-                    .where(cb.equal(root.get("id"), id));
+                    .where(cb.and(
+                            cb.equal(root.get("id"), id),
+                            cb.isFalse(root.get("deleted"))
+                    ));
             return session.createQuery(cr).getSingleResult();
         } catch (NoResultException e) {
-            throw new EntityNotFoundException("No building with id " + id + " found.");
+            throw new EntityNotFoundException("No active building with id " + id + " found.");
         }
     }
     public static List<BuildingDto> findAllBuildings() {
@@ -109,6 +104,7 @@ public class BuildingDao {
 
             cr.select(cb.construct(
                             BuildingDto.class,
+                            root.get("id"),
                             root.get("address"),
                             root.get("floors"),
                             root.get("monthlyTaxPerPerson"),
@@ -121,19 +117,30 @@ public class BuildingDao {
         }
     }
 
-    public static void deleteBuilding(long id) {
-        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            Transaction transaction = session.beginTransaction();
-            int updatedRows = session.createQuery("update Building b set b.deleted = true where b.id = :id")
-                    .setParameter("id", id)
-                    .executeUpdate();
-            if (updatedRows == 0) {
-                transaction.rollback();
-                throw new EntityNotFoundException("Building with id " + id + " not found");
-            }
-            transaction.commit();
-        }
+    public static void deleteBuilding(Session session, long id) {
+       session.createMutationQuery("update Building b set b.deleted = true where b.id = :id")
+               .setParameter("id", id)
+               .executeUpdate();
     }
+
+    public static void deleteAllBuildingsByCompany(Session session, long companyId) {
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaUpdate<Building> update = cb.createCriteriaUpdate(Building.class);
+        Root<Building> root = update.from(Building.class);
+
+        Join<Building, Employee> employee = root.join("employee");
+        Join<Employee, Company> company = employee.join("company");
+
+        update.set(root.get("deleted"), true)
+                .where(
+                        cb.and(
+                                cb.equal(company.get("id"), companyId),
+                                cb.isFalse(root.get("deleted"))
+                        )
+                );
+        session.createMutationQuery(update).executeUpdate();
+    }
+
     public static void restoreBuilding(long id) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
@@ -158,7 +165,10 @@ public class BuildingDao {
             Join<Employee, Company> company = employee.join("company");
 
             cr.select(cb.count(root))
-                    .where(cb.equal(company.get("id"), companyId));
+                    .where(cb.and(
+                            cb.equal(company.get("id"), companyId),
+                            cb.isFalse(root.get("deleted"))
+                    ));
 
             return session.createQuery(cr).getSingleResult();
         }
@@ -174,14 +184,23 @@ public class BuildingDao {
 
             cr.select(cb.construct(
                             BuildingDto.class,
-                            root.get("address")
+                            root.get("id"),
+                            root.get("address"),
+                            root.get("floors"),
+                            root.get("monthlyTaxPerPerson"),
+                            root.get("monthlyTaxPerPet"),
+                            root.get("monthlyTaxPerM2"),
+                            root.get("employee").get("name")
                     ))
-                    .where(cb.equal(employee.get("id"), employeeId));
+                    .where(cb.and(
+                            cb.equal(employee.get("id"), employeeId),
+                            cb.isFalse(root.get("deleted"))
+                    ));
             return session.createQuery(cr).getResultList();
         }
     }
 
-    public static  List<BuildingDto> getAllBuildingsByCompany(long companyId) {
+    public static  List<BuildingDto> findAllBuildingsByCompany(long companyId) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             CriteriaBuilder cb = session.getCriteriaBuilder();
             CriteriaQuery<BuildingDto> cr = cb.createQuery(BuildingDto.class);
@@ -192,10 +211,26 @@ public class BuildingDao {
 
             cr.select(cb.construct(
                             BuildingDto.class,
-                            root.get("address")
+                            root.get("id"),
+                            root.get("address"),
+                            root.get("floors"),
+                            root.get("monthlyTaxPerPerson"),
+                            root.get("monthlyTaxPerPet"),
+                            root.get("monthlyTaxPerM2"),
+                            root.get("employee").get("name")
                     ))
-                    .where(cb.equal(company.get("id"), companyId));
+                    .where(cb.and(
+                            cb.equal(company.get("id"), companyId),
+                            cb.isFalse(root.get("deleted"))
+                    ));
             return session.createQuery(cr).getResultList();
         }
+    }
+
+    public static void updateEmployeeForBuilding(Session session, long buildingId, long employeeId) {
+        Employee employee = session.get(Employee.class, employeeId);
+        Building building = session.get(Building.class, buildingId);
+
+        if (!building.isDeleted()) building.setEmployee(employee);
     }
 }

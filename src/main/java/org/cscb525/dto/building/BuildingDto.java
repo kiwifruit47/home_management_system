@@ -7,9 +7,9 @@ import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 
 public class BuildingDto {
+    long id;
     @NotNull
     private String address;
-    @NotNull
     @Positive
     private int floors;
     @NotNull
@@ -24,13 +24,18 @@ public class BuildingDto {
     @NotBlank(message = "Employee name cannot be blank")
     private String employeeName;
 
-    public BuildingDto(String address, int floors, BigDecimal monthlyTaxPerPerson, BigDecimal monthlyTaxPerPet, BigDecimal monthlyTaxPerM2, String employeeName) {
+    public BuildingDto(long id, String address, int floors, BigDecimal monthlyTaxPerPerson, BigDecimal monthlyTaxPerPet, BigDecimal monthlyTaxPerM2, String employeeName) {
+        this.id = id;
         this.address = address;
         this.floors = floors;
         this.monthlyTaxPerPerson = monthlyTaxPerPerson;
         this.monthlyTaxPerPet = monthlyTaxPerPet;
         this.monthlyTaxPerM2 = monthlyTaxPerM2;
         this.employeeName = employeeName;
+    }
+
+    public long getId() {
+        return id;
     }
 
     public String getAddress() {

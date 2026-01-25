@@ -1,13 +1,15 @@
-package org.cscb525.dto.building;
+package org.cscb525.service;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 
-public class UpdateBuildingDto {
-    @Positive
-    private final long id;
+public class CreateBuildingRequest {
+    @NotBlank(message = "Address cannot be blank")
+    private final String address;
+    @NotNull
     @Positive
     private final int floors;
     @NotNull
@@ -20,16 +22,20 @@ public class UpdateBuildingDto {
     @Positive
     private final BigDecimal monthlyTaxPerM2;
 
-    public UpdateBuildingDto(long id, int floors, BigDecimal monthlyTaxPerPerson, BigDecimal monthlyTaxPerPet, BigDecimal monthlyTaxPerM2) {
-        this.id = id;
+    public CreateBuildingRequest(String address, int floors, BigDecimal monthlyTaxPerPerson, BigDecimal monthlyTaxPerPet, BigDecimal monthlyTaxPerM2) {
+        this.address = address;
         this.floors = floors;
         this.monthlyTaxPerPerson = monthlyTaxPerPerson;
         this.monthlyTaxPerPet = monthlyTaxPerPet;
         this.monthlyTaxPerM2 = monthlyTaxPerM2;
     }
 
-    public long getId() {
-        return id;
+    public String getAddress() {
+        return address;
+    }
+
+    public int getFloors() {
+        return floors;
     }
 
     public BigDecimal getMonthlyTaxPerPerson() {
@@ -42,17 +48,5 @@ public class UpdateBuildingDto {
 
     public BigDecimal getMonthlyTaxPerM2() {
         return monthlyTaxPerM2;
-    }
-
-
-    @Override
-    public String toString() {
-        return "UpdateBuildingDto{" +
-                "id=" + id +
-                ", floors=" + floors +
-                ", monthlyTaxPerPerson=" + monthlyTaxPerPerson +
-                ", monthlyTaxPerPet=" + monthlyTaxPerPet +
-                ", monthlyTaxPerM2=" + monthlyTaxPerM2 +
-                '}';
     }
 }

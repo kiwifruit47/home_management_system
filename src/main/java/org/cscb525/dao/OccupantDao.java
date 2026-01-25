@@ -2,17 +2,12 @@ package org.cscb525.dao;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.NoResultException;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 import org.cscb525.config.SessionFactoryUtil;
 import org.cscb525.dto.occupant.CreateOccupantDto;
 import org.cscb525.dto.occupant.OccupantDto;
 import org.cscb525.dto.occupant.UpdateOccupantDto;
-import org.cscb525.entity.Apartment;
-import org.cscb525.entity.Building;
-import org.cscb525.entity.Occupant;
+import org.cscb525.entity.*;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -28,8 +23,8 @@ public class OccupantDao {
                     Apartment.class,
                     occupantDto.getApartmentId()
             );
-            if (apartment == null)
-                throw new EntityNotFoundException("Apartment with id " + occupantDto.getApartmentId() + " does not exist.");
+            if (apartment == null || apartment.isDeleted())
+                throw new EntityNotFoundException("Active apartment with id " + occupantDto.getApartmentId() + " does not exist.");
 
             Occupant occupant = new Occupant();
             occupant.setName(occupantDto.getName());
@@ -55,9 +50,9 @@ public class OccupantDao {
             transaction = session.beginTransaction();
 
             Occupant occupant = session.get(Occupant.class, occupantDto.getId());
-            if (occupant == null) {
+            if (occupant == null || occupant.isDeleted()) {
                 throw new EntityNotFoundException(
-                        "No occupant with id " + occupantDto.getId() + " found."
+                        "No active occupant with id " + occupantDto.getId() + " found."
                 );
             }
 
@@ -89,10 +84,13 @@ public class OccupantDao {
                             apartment.get("apartmentNumber"),
                             apartment.get("floor")
                     ))
-                    .where(cb.equal(root.get("id"), id));
+                    .where(cb.and(
+                            cb.equal(root.get("id"), id),
+                            cb.isFalse(root.get("deleted"))
+                    ));
             return session.createQuery(cr).getSingleResult();
         } catch (NoResultException e) {
-            throw new EntityNotFoundException("No occupant with id " + id + " found.");
+            throw new EntityNotFoundException("No active occupant with id " + id + " found.");
         }
     }
 
@@ -130,6 +128,42 @@ public class OccupantDao {
         }
     }
 
+    public static void deleteAllOccupantsByCompany(Session session, long companyId) {
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaUpdate<Occupant> update = cb.createCriteriaUpdate(Occupant.class);
+        Root<Occupant> root = update.from(Occupant.class);
+
+        Join<Occupant, Apartment> apartment = root.join("apartment");
+        Join<Apartment, Building> building = apartment.join("building");
+        Join<Building, Employee> employee = building.join("employee");
+        Join<Employee, Company> company = employee.join("company");
+
+        update.set(root.get("deleted"), true)
+                .where(cb.and(
+                        cb.equal(company.get("id"), companyId),
+                        cb.isFalse(root.get("deleted"))
+                ));
+
+        session.createMutationQuery(update).executeUpdate();
+    }
+
+    public static void deleteAllOccupantsByBuilding(Session session, long buildingId) {
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaUpdate<Occupant> update = cb.createCriteriaUpdate(Occupant.class);
+        Root<Occupant> root = update.from(Occupant.class);
+
+        Join<Occupant, Apartment> apartment = root.join("apartment");
+        Join<Apartment, Building> building = apartment.join("building");
+
+        update.set(root.get("deleted"), true)
+                .where(cb.and(
+                        cb.equal(building.get("id"), buildingId),
+                        cb.isFalse(root.get("deleted"))
+                ));
+
+        session.createMutationQuery(update).executeUpdate();
+    }
+
     public static void restoreOccupant(long id) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
@@ -160,7 +194,10 @@ public class OccupantDao {
                             apartment.get("apartmentNumber"),
                             apartment.get("floor")
                     ))
-                    .where(cb.equal(root.get("id"), buildingId))
+                    .where(cb.and(
+                            cb.equal(root.get("id"), buildingId),
+                            cb.isFalse(root.get("deleted"))
+                    ))
                     .orderBy(cb.asc(occupant.get("name")));
             return session.createQuery(cr).getResultList();
         }
@@ -182,7 +219,12 @@ public class OccupantDao {
                             apartment.get("apartmentNumber"),
                             apartment.get("floor")
                     ))
-                    .where(cb.equal(root.get("id"), buildingId))
+                    .where(
+                            cb.and(
+                                    cb.equal(root.get("id"), buildingId),
+                                    cb.isFalse(root.get("deleted"))
+                            )
+                    )
                     .orderBy(cb.desc(occupant.get("age")));
             return session.createQuery(cr).getResultList();
         }
@@ -198,7 +240,10 @@ public class OccupantDao {
             Join<Apartment, Occupant> occupant = apartment.join("occupants");
 
             cr.select(cb.count(occupant))
-                    .where(cb.equal(root.get("id"), buildingId));
+                    .where(cb.and(
+                            cb.equal(root.get("id"), buildingId),
+                            cb.isFalse(root.get("deleted"))
+                    ));
             return session.createQuery(cr).getSingleResult();
         }
     }
