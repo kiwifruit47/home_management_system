@@ -17,7 +17,7 @@ import java.util.List;
 public class ApartmentDao {
 
     //apartment can't be persisted if Building doesn't exist in the DB
-    public static void createApartment(@Valid CreateApartmentDto apartmentDto) {
+    public static void createApartment(CreateApartmentDto apartmentDto) {
         Transaction transaction = null;
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
@@ -73,111 +73,20 @@ public class ApartmentDao {
         }
     }
 
-    public static void addOwnerToApartment(long apartmentId, long ownerId) {
-        Transaction transaction = null;
-
+    public static int findPetCountByApartment(long apartmentId) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-
-            Apartment apartment = session.get(Apartment.class, apartmentId);
-            Owner owner = session.get(Owner.class, ownerId);
-
-            if (apartment == null || owner == null || apartment.isDeleted() || owner.isDeleted()) {
-                throw new EntityNotFoundException("Apartment or owner not found or not active.");
-            }
-
-            apartment.getOwners().add(owner);
-            owner.getApartments().add(apartment);
-
-            transaction.commit();
-        } catch (RuntimeException e) {
-            if (transaction != null && transaction.isActive()) {
-                transaction.rollback();
-            }
-            throw e;
-        }
-    }
-
-    public static void removeOwnerFromApartment(long apartmentId, long ownerId) {
-        Transaction transaction = null;
-
-        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-
-            Apartment apartment = session.get(Apartment.class, apartmentId);
-            Owner owner = session.get(Owner.class, ownerId);
-
-            if (apartment == null || owner == null || apartment.isDeleted() || owner.isDeleted()) {
-                throw new EntityNotFoundException("Apartment or owner not found or not active.");
-            }
-
-            if (!apartment.getOwners().contains(owner)) {
-                throw new IllegalStateException("This owner is not associated with this apartment.");
-            }
-
-            apartment.getOwners().remove(owner);
-            owner.getApartments().remove(apartment);
-
-            transaction.commit();
-        } catch (RuntimeException e) {
-            if (transaction != null && transaction.isActive()) {
-                transaction.rollback();
-            }
-            throw e;
-        }
-    }
-
-    public static void addOccupantToApartment(long apartmentId, CreateOccupantDto occupantDto) {
-        Transaction transaction = null;
-
-        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-
             Apartment apartment = session.get(Apartment.class, apartmentId);
             if (apartment == null || apartment.isDeleted()) {
-                throw new EntityNotFoundException("Active apartment with id " + apartmentId + " not found.");
+                throw new EntityNotFoundException(
+                        "No active apartment with id " + apartmentId + " found."
+                );
             }
-
-            Occupant occupant = new Occupant();
-            occupant.setName(occupantDto.getName());
-            occupant.setAge(occupant.getAge());
-            occupant.setUsesElevator(occupantDto.usesElevator());
-            occupant.setApartment(apartment);
-
-            session.persist(occupant);
-
-            transaction.commit();
-        } catch (RuntimeException e) {
-            if (transaction != null && transaction.isActive()) {
-                transaction.rollback();
-            }
-            throw e;
+            return apartment.getPets();
         }
     }
 
-    public static void removeOccupant(long occupantId) {
-        Transaction transaction = null;
 
-        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-
-            Occupant occupant = session.get(Occupant.class, occupantId);
-            if (occupant == null) {
-                throw new EntityNotFoundException("Occupant not found.");
-            }
-
-            session.remove(occupant);
-
-            transaction.commit();
-        } catch (RuntimeException e) {
-            if (transaction != null && transaction.isActive()) {
-                transaction.rollback();
-            }
-            throw e;
-        }
-    }
-
-    public static ApartmentDto findApartmentById(long id) {
+    public static ApartmentDto findApartmentDtoById(long id) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             CriteriaBuilder cb = session.getCriteriaBuilder();
             CriteriaQuery<ApartmentDto> cr = cb.createQuery(ApartmentDto.class);
@@ -200,6 +109,10 @@ public class ApartmentDao {
         } catch (NoResultException e) {
             throw new EntityNotFoundException("No active apartment with id " + id + " found.");
         }
+    }
+
+    public static Apartment findApartmentById(Session session, long apartmentId) {
+        return session.get(Apartment.class, apartmentId);
     }
     public static List<ApartmentDto> findAllApartments() {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {

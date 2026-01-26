@@ -1,8 +1,8 @@
 package org.cscb525.service;
 
 import org.cscb525.dto.monthlyApartmentTax.MonthlyApartmentTaxReceiptDto;
-import org.cscb525.service.exporter.MonthlyTaxReceiptTxtExporter;
-import org.cscb525.service.exporter.MonthlyTaxReceiptXlsAppender;
+import org.cscb525.service.util.exporter.MonthlyTaxReceiptTxtExporter;
+import org.cscb525.service.util.exporter.MonthlyTaxReceiptXlsAppender;
 
 
 public class ExportService {

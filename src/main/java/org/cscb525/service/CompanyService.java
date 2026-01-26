@@ -2,9 +2,12 @@ package org.cscb525.service;
 
 import org.cscb525.config.SessionFactoryUtil;
 import org.cscb525.dao.*;
+import org.cscb525.dto.building.BuildingDto;
 import org.cscb525.dto.building.CreateBuildingDto;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+
+import java.util.List;
 
 
 public class CompanyService {
@@ -28,18 +31,27 @@ public class CompanyService {
         }
     }
 
-    public void removeEmployeeFromCompany(long companyId, long employeeId) {
-        //open session and begin transaction
-        //get all employee count for c excluding employee to be deleted
-        //append building to employee with least amount of buildings
-        //remove employee
-        //commit transaction
-        //catch runtime exception
+    public void removeEmployeeFromCompany(long companyId, long employeeToRemoveId) {
         Transaction transaction = null;
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
 
+            List<BuildingDto> buildings = BuildingDao.findAllBuildingsByEmployee(employeeToRemoveId);
 
+            List<Long> colleaguesIds = EmployeeDao.findAllColleaguesIdsOfEmployee(session, companyId, employeeToRemoveId);
+
+            if (colleaguesIds.isEmpty())
+                throw new IllegalStateException("Deleting last company employee is forbidden!");
+
+            int employeeIndex = 0;
+            for (BuildingDto buildingDto : buildings) {
+                BuildingDao.updateEmployeeForBuilding(session, buildingDto.getId(), colleaguesIds.get(employeeIndex));
+                employeeIndex = (employeeIndex + 1) % colleaguesIds.size();
+            }
+
+            session.flush();
+
+            EmployeeDao.deleteEmployee(session,employeeToRemoveId);
 
             transaction.commit();
         } catch (RuntimeException e) {

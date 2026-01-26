@@ -107,18 +107,10 @@ public class EmployeeDao {
             return session.createQuery(cr).getResultList();
         }
     }
-    public static void deleteEmployee(long id) {
-        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            Transaction transaction = session.beginTransaction();
-            int updatedRows = session.createQuery("update Employee e set e.deleted = true where e.id = :id")
-                    .setParameter("id", id)
-                    .executeUpdate();
-            if (updatedRows == 0) {
-                transaction.rollback();
-                throw new EntityNotFoundException("Employee with id " + id + " not found.");
-            }
-            transaction.commit();
-        }
+    public static void deleteEmployee(Session session, long id) {
+        int updatedRows = session.createQuery("update Employee e set e.deleted = true where e.id = :id")
+                .setParameter("id", id)
+                .executeUpdate();
     }
 
     public static void deleteAllEmployeesByCompany(Session session, long companyId) {
@@ -223,6 +215,22 @@ public class EmployeeDao {
                     .setMaxResults(1)
                     .getSingleResult();
         }
+    }
+
+    public static List<Long> findAllColleaguesIdsOfEmployee(Session session, long companyId, long employeeId) {
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> cr = cb.createQuery(Long.class);
+        Root<Employee> root = cr.from(Employee.class);
+
+        Join<Employee, Company> company = root.join("company");
+
+        cr.select(root.get("id"))
+                .where(cb.and(
+                        cb.equal(company.get("id"), companyId),
+                        cb.notEqual(root.get("id"), employeeId),
+                        cb.isFalse(root.get("deleted"))
+                ));
+        return session.createQuery(cr).getResultList();
     }
 
 }

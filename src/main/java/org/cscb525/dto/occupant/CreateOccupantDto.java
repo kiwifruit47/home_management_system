@@ -1,7 +1,6 @@
 package org.cscb525.dto.occupant;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
 public class CreateOccupantDto {
@@ -10,14 +9,11 @@ public class CreateOccupantDto {
     @NotBlank(message = "Occupant name cannot be blank")
     private final String name;
     private final boolean usesElevator;
-    @NotNull
-    private final int apartmentId;
 
-    public CreateOccupantDto(int age, String name, boolean usesElevator, int apartmentId) {
+    public CreateOccupantDto(int age, String name, boolean usesElevator) {
         this.age = age;
         this.name = name;
         this.usesElevator = usesElevator;
-        this.apartmentId = apartmentId;
     }
 
     public int getAge() {
@@ -32,17 +28,12 @@ public class CreateOccupantDto {
         return usesElevator;
     }
 
-    public int getApartmentId() {
-        return apartmentId;
-    }
-
     @Override
     public String toString() {
         return "CreateOccupantDto{" +
                 "age=" + age +
                 ", name='" + name + '\'' +
                 ", usesElevator=" + usesElevator +
-                ", apartmentId=" + apartmentId +
                 '}';
     }
 }

@@ -1,4 +1,4 @@
-package org.cscb525.service.exporter;
+package org.cscb525.service.util.exporter;
 
 import org.cscb525.dto.monthlyApartmentTax.MonthlyApartmentTaxReceiptDto;
 

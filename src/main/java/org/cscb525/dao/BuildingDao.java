@@ -227,8 +227,8 @@ public class BuildingDao {
         }
     }
 
-    public static void updateEmployeeForBuilding(Session session, long buildingId, long employeeId) {
-        Employee employee = session.get(Employee.class, employeeId);
+    public static void updateEmployeeForBuilding(Session session, long buildingId, long newEmployeeId) {
+        Employee employee = session.get(Employee.class, newEmployeeId);
         Building building = session.get(Building.class, buildingId);
 
         if (!building.isDeleted()) building.setEmployee(employee);

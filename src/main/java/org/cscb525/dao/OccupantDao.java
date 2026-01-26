@@ -14,33 +14,14 @@ import org.hibernate.Transaction;
 import java.util.List;
 
 public class OccupantDao {
-    //occupant can't be persisted if the apartment they live in doesn't exist in the DB
-    public static void createOccupant(CreateOccupantDto occupantDto) {
-        Transaction transaction = null;
-        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-            Apartment apartment = session.get(
-                    Apartment.class,
-                    occupantDto.getApartmentId()
-            );
-            if (apartment == null || apartment.isDeleted())
-                throw new EntityNotFoundException("Active apartment with id " + occupantDto.getApartmentId() + " does not exist.");
+    public static void createOccupant(Session session, CreateOccupantDto occupantDto, long apartmentId) {
+        Occupant occupant = new Occupant();
+        occupant.setName(occupantDto.getName());
+        occupant.setAge(occupantDto.getAge());
+        occupant.setUsesElevator(occupantDto.usesElevator());
+        occupant.setApartment(session.get(Apartment.class, apartmentId));
 
-            Occupant occupant = new Occupant();
-            occupant.setName(occupantDto.getName());
-            occupant.setAge(occupantDto.getAge());
-            occupant.setUsesElevator(occupantDto.usesElevator());
-            occupant.setApartment(apartment);
-
-            session.persist(occupant);
-
-            transaction.commit();
-        } catch (RuntimeException e) {
-            if (transaction != null && transaction.isActive()) {
-                transaction.rollback();
-            }
-            throw e;
-        }
+        session.persist(occupant);
     }
 
     public static void updateOccupant(UpdateOccupantDto occupantDto) {
@@ -69,7 +50,7 @@ public class OccupantDao {
         }
     }
 
-    public static OccupantDto findOccupantById(long id) {
+    public static OccupantDto findOccupantDtoById(long id) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             CriteriaBuilder cb = session.getCriteriaBuilder();
             CriteriaQuery<OccupantDto> cr = cb.createQuery(OccupantDto.class);
@@ -92,6 +73,10 @@ public class OccupantDao {
         } catch (NoResultException e) {
             throw new EntityNotFoundException("No active occupant with id " + id + " found.");
         }
+    }
+
+    public static Occupant findOccupantById(Session session, long occupantId) {
+        return session.get(Occupant.class, occupantId);
     }
 
     public static List<OccupantDto> findAllOccupants() {
