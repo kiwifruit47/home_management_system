@@ -8,8 +8,9 @@ import org.cscb525.dao.OccupantDao;
 import org.cscb525.dao.OwnerDao;
 import org.cscb525.dto.apartment.ApartmentDto;
 import org.cscb525.dto.apartment.CreateApartmentDto;
-import org.cscb525.dto.building.BuildingDto;
 import org.cscb525.dto.occupant.CreateOccupantDto;
+import org.cscb525.dto.occupant.OccupantDto;
+import org.cscb525.dto.owner.OwnerDto;
 import org.cscb525.entity.Apartment;
 import org.cscb525.entity.Occupant;
 import org.cscb525.entity.Owner;
@@ -24,21 +25,24 @@ public class ApartmentService {
         ApartmentDao.createApartment(createApartmentDto);
     }
 
-    public void updateApartmentPetCount(long apartmentId, PetUpdateType type) {
+    public ApartmentDto updateApartmentPetCount(long apartmentId, PetUpdateType type) {
         int currentPetCount = ApartmentDao.findPetCountByApartment(apartmentId);
         switch (type) {
             case REMOVE -> currentPetCount--;
             case ADD -> currentPetCount++;
         }
         ApartmentDao.updateApartmentPets(apartmentId, currentPetCount);
+
+        return ApartmentDao.findApartmentDtoById(apartmentId);
     }
 
-    public void removeOwnerFromApartment(long apartmentId, long ownerId) {
+    public OwnerDto removeOwnerFromApartment(long apartmentId, long ownerId) {
         Transaction transaction = null;
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
             Apartment apartment = ApartmentDao.findApartmentById(session, apartmentId);
             Owner owner = OwnerDao.findOwnerById(session, ownerId);
+            OwnerDto removedOwnerDto = OwnerDao.findOwnerDtoById(session, ownerId);
 
             if (apartment == null || owner == null || apartment.isDeleted() || owner.isDeleted()) {
                 throw new EntityNotFoundException("Apartment or owner not found or active.");
@@ -50,6 +54,10 @@ public class ApartmentService {
             } else {
                 throw new IllegalStateException("Owner not associated with this apartment.");
             }
+
+            transaction.commit();
+
+            return removedOwnerDto;
         } catch (RuntimeException e) {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
@@ -58,7 +66,7 @@ public class ApartmentService {
         }
     }
 
-    public void addOwnerToApartment(long apartmentId, long ownerId) {
+    public OwnerDto addOwnerToApartment(long apartmentId, long ownerId) {
         Transaction transaction = null;
 
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
@@ -66,6 +74,7 @@ public class ApartmentService {
 
             Apartment apartment = ApartmentDao.findApartmentById(session, apartmentId);
             Owner owner = OwnerDao.findOwnerById(session, ownerId);
+            OwnerDto addedOwnerDto = OwnerDao.findOwnerDtoById(session, ownerId);
 
             if (apartment == null || owner == null || apartment.isDeleted() || owner.isDeleted()) {
                 throw new EntityNotFoundException("Apartment or owner not found or not active.");
@@ -75,6 +84,8 @@ public class ApartmentService {
             owner.getApartments().add(apartment);
 
             transaction.commit();
+
+            return addedOwnerDto;
         } catch (RuntimeException e) {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
@@ -105,7 +116,7 @@ public class ApartmentService {
         }
     }
 
-    public void removeOccupantFromApartment(long apartmentId, long occupantId) {
+    public OccupantDto removeOccupantFromApartment(long apartmentId, long occupantId) {
         Transaction transaction = null;
 
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
@@ -113,6 +124,7 @@ public class ApartmentService {
 
             Apartment apartment = ApartmentDao.findApartmentById(session, apartmentId);
             Occupant occupant = OccupantDao.findOccupantById(session, occupantId);
+            OccupantDto deletededOccupantDto = OccupantDao.findOccupantDtoById(session, occupantId);
 
             if (apartment == null || occupant == null || apartment.isDeleted() || occupant.isDeleted()) {
                 throw new EntityNotFoundException("Apartment or occupant not found or active.");
@@ -122,6 +134,8 @@ public class ApartmentService {
             OccupantDao.deleteOccupant(occupantId);
 
             transaction.commit();
+
+            return deletededOccupantDto;
         } catch (RuntimeException e) {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
@@ -130,15 +144,17 @@ public class ApartmentService {
         }
     }
 
-    public void printAllApartments() {
-        List<ApartmentDto> apartments = ApartmentDao.findAllApartments();
-        apartments.forEach(System.out::println);
+    public List<ApartmentDto> getAllApartments() {
+        return ApartmentDao.findAllApartments();
     }
 
     public int getApartmentCountByBuilding(long buildingId) {
         return ((int) ApartmentDao.findApartmentCountByBuilding(buildingId));
     }
 
+    public List<ApartmentDto> getAllApartmentsByBuilding(long buildingId) {
+        return ApartmentDao.findAllApartmentsByBuilding(buildingId);
+    }
 
 
 }

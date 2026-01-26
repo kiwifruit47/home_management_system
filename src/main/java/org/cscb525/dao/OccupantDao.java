@@ -75,6 +75,27 @@ public class OccupantDao {
         }
     }
 
+    public static OccupantDto findOccupantDtoById(Session session, long id) {
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<OccupantDto> cr = cb.createQuery(OccupantDto.class);
+        Root<Occupant> root = cr.from(Occupant.class);
+
+        Join<Occupant, Apartment> apartment = root.join("apartment");
+
+        cr.select(cb.construct(
+                        OccupantDto.class,
+                        root.get("name"),
+                        root.get("age"),
+                        apartment.get("apartmentNumber"),
+                        apartment.get("floor")
+                ))
+                .where(cb.and(
+                        cb.equal(root.get("id"), id),
+                        cb.isFalse(root.get("deleted"))
+                ));
+        return session.createQuery(cr).getSingleResult();
+    }
+
     public static Occupant findOccupantById(Session session, long occupantId) {
         return session.get(Occupant.class, occupantId);
     }

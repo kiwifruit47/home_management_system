@@ -67,6 +67,23 @@ public class OwnerDao {
         }
     }
 
+    public static OwnerDto findOwnerDtoById(Session session, long id) {
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<OwnerDto> cr = cb.createQuery(OwnerDto.class);
+        Root<Owner> root = cr.from(Owner.class);
+
+        cr.select(cb.construct(
+                        OwnerDto.class,
+                        root.get("name")
+                ))
+                .where(cb.and(
+                        cb.equal(root.get("id"), id),
+                        cb.isFalse(root.get("deleted"))
+                ));
+
+        return session.createQuery(cr).getSingleResult();
+    }
+
     public static Owner findOwnerById(Session session, long ownerId) {
         return session.get(Owner.class, ownerId);
     }

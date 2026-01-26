@@ -71,7 +71,7 @@ public class BuildingDao {
         }
     }
 
-    public static BuildingDto findBuildingById(long id) {
+    public static BuildingDto findBuildingDtoById(long id) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             CriteriaBuilder cb = session.getCriteriaBuilder();
             CriteriaQuery<BuildingDto> cr = cb.createQuery(BuildingDto.class);
@@ -96,6 +96,29 @@ public class BuildingDao {
             throw new EntityNotFoundException("No active building with id " + id + " found.");
         }
     }
+
+    public static BuildingDto findBuildingDtoById(Session session, long id) {
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<BuildingDto> cr = cb.createQuery(BuildingDto.class);
+        Root<Building> root = cr.from(Building.class);
+
+        cr.select(cb.construct(
+                        BuildingDto.class,
+                        root.get("id"),
+                        root.get("address"),
+                        root.get("floors"),
+                        root.get("monthlyTaxPerPerson"),
+                        root.get("monthlyTaxPerPet"),
+                        root.get("monthlyTaxPerM2"),
+                        root.get("employee").get("name")
+                ))
+                .where(cb.and(
+                        cb.equal(root.get("id"), id),
+                        cb.isFalse(root.get("deleted"))
+                ));
+        return session.createQuery(cr).getSingleResult();
+    }
+
     public static List<BuildingDto> findAllBuildings() {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             CriteriaBuilder cb = session.getCriteriaBuilder();

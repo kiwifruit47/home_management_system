@@ -73,7 +73,7 @@ public class EmployeeDao {
         }
     }
 
-    public static EmployeeDto findEmployeeById(long id) {
+    public static EmployeeDto findEmployeeDtoById(long id) {
         try(Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             CriteriaBuilder cb = session.getCriteriaBuilder();
             CriteriaQuery<EmployeeDto> cr = cb.createQuery(EmployeeDto.class);
@@ -91,6 +91,22 @@ public class EmployeeDao {
         } catch (NoResultException e) {
             throw new EntityNotFoundException("No active employee with id " + id + " found.");
         }
+    }
+
+    public static EmployeeDto findEmployeeDtoById(Session session, long id) {
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<EmployeeDto> cr = cb.createQuery(EmployeeDto.class);
+        Root<Employee> root = cr.from(Employee.class);
+
+        cr.select(cb.construct(
+                        EmployeeDto.class,
+                        root.get("name")
+                ))
+                .where(cb.and(
+                        cb.equal(root.get("id"), id),
+                        cb.isFalse(root.get("deleted"))
+                ));
+        return session.createQuery(cr).getSingleResult();
     }
 
     public static List<EmployeeDto> findAllEmployees() {

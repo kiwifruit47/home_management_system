@@ -3,12 +3,10 @@ package org.cscb525.dao;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.criteria.*;
-import jakarta.validation.Valid;
 import org.cscb525.config.SessionFactoryUtil;
 import org.cscb525.dto.company.CompanyDto;
 import org.cscb525.dto.company.CompanyIncomeDto;
 import org.cscb525.dto.company.CreateCompanyDto;
-import org.cscb525.dto.company.UpdateCompanyDto;
 import org.cscb525.entity.*;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -17,7 +15,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public class CompanyDao {
-    public static void createCompany(@Valid CreateCompanyDto createCompanyDto) {
+    public static void createCompany(CreateCompanyDto createCompanyDto) {
         try(Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             Company company = new Company();
             company.setName(createCompanyDto.getName());
@@ -27,20 +25,20 @@ public class CompanyDao {
         }
     }
 
-    public static void updateCompany(@Valid UpdateCompanyDto companyDto) {
+    public static void updateCompanyName(long companyId, String name) {
         try(Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
-            Company company = session.get(Company.class, companyDto.getId());
+            Company company = session.get(Company.class, companyId);
             if (company == null || company.isDeleted()) {
-                throw new EntityNotFoundException("No active company with id " + companyDto.getId() + " found");
+                throw new EntityNotFoundException("No active company with id " + companyId + " found");
             }
 
-            company.setName(companyDto.getName());
+            company.setName(name);
             transaction.commit();
         }
     }
 
-    public static CompanyDto findCompanyById(long id) {
+    public static CompanyDto findCompanyDtoById(long id) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             CriteriaBuilder cb = session.getCriteriaBuilder();
             CriteriaQuery<CompanyDto> cr = cb.createQuery(CompanyDto.class);
@@ -58,6 +56,22 @@ public class CompanyDao {
         } catch (NoResultException e) {
             throw new EntityNotFoundException("No active company with id " + id + " found.");
         }
+    }
+
+    public static CompanyDto findCompanyDtoById(Session session, long id) {
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<CompanyDto> cr = cb.createQuery(CompanyDto.class);
+        Root<Company> root = cr.from(Company.class);
+
+        cr.select(cb.construct(
+                        CompanyDto.class,
+                        root.get("name")
+                ))
+                .where(cb.and(
+                        cb.equal(root.get("id"), id),
+                        cb.isFalse(root.get("deleted"))
+                ));
+        return session.createQuery(cr).getSingleResult();
     }
 
     public static List<CompanyDto> findAllCompanies() {
@@ -96,7 +110,7 @@ public class CompanyDao {
         }
     }
 
-    public static List<CompanyIncomeDto> getAllCompaniesOrderByIncomeDesc() {
+    public static List<CompanyIncomeDto> companiesOrderByIncomeDesc() {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             CriteriaBuilder cb = session.getCriteriaBuilder();
             CriteriaQuery<CompanyIncomeDto> cr = cb.createQuery(CompanyIncomeDto.class);
