@@ -130,6 +130,10 @@ public class ApartmentService {
         }
     }
 
+    public void printAllApartments() {
+        List<ApartmentDto> apartments = ApartmentDao.findAllApartments();
+        apartments.forEach(System.out::println);
+    }
 
     public int getApartmentCountByBuilding(long buildingId) {
         return ((int) ApartmentDao.findApartmentCountByBuilding(buildingId));
