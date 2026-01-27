@@ -56,6 +56,7 @@ public class ApartmentService {
             if (apartment.getOwners().contains(owner)) {
                 apartment.getOwners().remove(owner);
                 owner.getApartments().remove(apartment);
+                if (owner.getApartments().isEmpty()) OwnerDao.deleteOwner(ownerId);
             } else {
                 throw new IllegalStateException("Owner not associated with this apartment.");
             }

@@ -171,6 +171,24 @@ public class ApartmentDao {
         session.createMutationQuery(update).executeUpdate();
     }
 
+    public static void restoreAllApartmentsByCompany(Session session, long companyId) {
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaUpdate<Apartment> update = cb.createCriteriaUpdate(Apartment.class);
+        Root<Apartment> root = update.from(Apartment.class);
+
+        Join<Apartment, Building> building = root.join("building");
+        Join<Building, Employee> employee = building.join("employee");
+        Join<Employee, Company> company = employee.join("company");
+
+        update.set(root.get("deleted"), false)
+                .where(cb.and(
+                        cb.equal(company.get("id"), companyId),
+                        cb.isTrue(root.get("deleted"))
+                ));
+
+        session.createMutationQuery(update).executeUpdate();
+    }
+
     public static void deleteAllApartmentsByBuilding(Session session, long buildingId) {
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaUpdate<Apartment> update = cb.createCriteriaUpdate(Apartment.class);
@@ -184,20 +202,6 @@ public class ApartmentDao {
                         cb.isFalse(root.get("deleted"))
                 ));
         session.createMutationQuery(update).executeUpdate();
-    }
-
-    public static void restoreApartment(long id) {
-        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            Transaction transaction = session.beginTransaction();
-            int updatedRows = session.createQuery("update Apartment a set a.deleted = false where a.id = :id")
-                    .setParameter("id", id)
-                    .executeUpdate();
-            if (updatedRows == 0) {
-                transaction.rollback();
-                throw new EntityNotFoundException("Apartment with id " + id + " not found.");
-            }
-            transaction.commit();
-        }
     }
 
     public static long findApartmentCountByBuilding(long buildingId) {

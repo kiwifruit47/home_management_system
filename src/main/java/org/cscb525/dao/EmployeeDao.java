@@ -45,31 +45,20 @@ public class EmployeeDao {
         }
     }
 
-    public static void updateEmployee(@Valid UpdateEmployeeDto employeeDto) {
+    public static void updateEmployeeName(long id, String name) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
-            Company company = session.get(
-                    Company.class,
-                    employeeDto.getCompanyId()
-            );
 
             Employee employee = session.get(
                     Employee.class,
-                    employeeDto.getEmployeeId()
+                    id
             );
 
             if (employee == null || employee.isDeleted()) {
-                throw new EntityNotFoundException("No active employee with id " + employeeDto.getEmployeeId() + " found.");
+                throw new NotFoundException(Employee.class, id);
             }
 
-            if (company == null || !company.equals(employee.getCompany())) {
-                throw new EntityNotFoundException(
-                        "Employee with id " + employeeDto.getEmployeeId() +
-                        " does not belong to company with id " + employeeDto.getCompanyId() + "."
-                );
-            }
-
-            employee.setName(employeeDto.getName());
+            employee.setName(name);
             transaction.commit();
         }
     }
@@ -146,18 +135,20 @@ public class EmployeeDao {
         session.createMutationQuery(update).executeUpdate();
     }
 
-    public static void restoreEmployee(long id) {
-        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            Transaction transaction = session.beginTransaction();
-            int updatedRows = session.createQuery("update Employee e set e.deleted = false where e.id = :id")
-                    .setParameter("id", id)
-                    .executeUpdate();
-            if (updatedRows == 0) {
-                transaction.rollback();
-                throw new EntityNotFoundException("Employee with id " + id + " not found.");
-            }
-            transaction.commit();
-        }
+    public static void restoreAllEmployeesByCompany(Session session, long companyId) {
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaUpdate<Employee> update = cb.createCriteriaUpdate(Employee.class);
+        Root<Employee> root = update.from(Employee.class);
+
+        update.set(root.get("deleted"), false)
+                .where(
+                        cb.and(
+                                cb.equal(root.get("company").get("id"), companyId),
+                                cb.isTrue(root.get("deleted"))
+                        )
+                );
+
+        session.createMutationQuery(update).executeUpdate();
     }
 
     public static List<EmployeeDto> findAllEmployeesByCompany(long companyId) {

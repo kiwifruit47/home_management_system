@@ -139,7 +139,25 @@ public class CompanyService {
     }
 
     public CompanyDto restoreCompany(long companyId) {
-        CompanyDao.restoreCompany(companyId);
-        return CompanyDao.findCompanyDtoById(companyId);
+        Transaction transaction = null;
+        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+
+            OwnerDao.restoreAllOwnersByCompany(session, companyId);
+            OccupantDao.restoreAllOccupantsByCompany(session,companyId);
+            ApartmentDao.restoreAllApartmentsByCompany(session, companyId);
+            BuildingDao.restoreAllBuildingsByCompany(session, companyId);
+            EmployeeDao.restoreAllEmployeesByCompany(session, companyId);
+            CompanyDao.restoreCompany(session, companyId);
+
+            transaction.commit();
+
+            return CompanyDao.findCompanyDtoById(session, companyId);
+        } catch (RuntimeException e) {
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw e;
+        }
     }
 }

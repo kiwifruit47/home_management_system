@@ -8,6 +8,7 @@ import org.cscb525.dto.occupant.CreateOccupantDto;
 import org.cscb525.dto.occupant.OccupantDto;
 import org.cscb525.dto.occupant.UpdateOccupantDto;
 import org.cscb525.entity.*;
+import org.cscb525.exceptions.NotFoundException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -32,9 +33,7 @@ public class OccupantDao {
 
             Occupant occupant = session.get(Occupant.class, occupantDto.getId());
             if (occupant == null || occupant.isDeleted()) {
-                throw new EntityNotFoundException(
-                        "No active occupant with id " + occupantDto.getId() + " found."
-                );
+                throw new NotFoundException(Occupant.class, occupantDto.getId());
             }
 
             occupant.setAge(occupantDto.getAge());
@@ -71,7 +70,7 @@ public class OccupantDao {
                     ));
             return session.createQuery(cr).getSingleResult();
         } catch (NoResultException e) {
-            throw new EntityNotFoundException("No active occupant with id " + id + " found.");
+            throw new NotFoundException(Occupant.class, id, e);
         }
     }
 
@@ -128,7 +127,7 @@ public class OccupantDao {
                     .executeUpdate();
             if (updatedRows == 0) {
                 transaction.rollback();
-                throw new EntityNotFoundException("Occupant with id " + id + " not found.");
+                throw new NotFoundException(Occupant.class, id);
             }
             transaction.commit();
         }
@@ -153,6 +152,25 @@ public class OccupantDao {
         session.createMutationQuery(update).executeUpdate();
     }
 
+    public static void restoreAllOccupantsByCompany(Session session, long companyId) {
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaUpdate<Occupant> update = cb.createCriteriaUpdate(Occupant.class);
+        Root<Occupant> root = update.from(Occupant.class);
+
+        Join<Occupant, Apartment> apartment = root.join("apartment");
+        Join<Apartment, Building> building = apartment.join("building");
+        Join<Building, Employee> employee = building.join("employee");
+        Join<Employee, Company> company = employee.join("company");
+
+        update.set(root.get("deleted"), false)
+                .where(cb.and(
+                        cb.equal(company.get("id"), companyId),
+                        cb.isTrue(root.get("deleted"))
+                ));
+
+        session.createMutationQuery(update).executeUpdate();
+    }
+
     public static void deleteAllOccupantsByBuilding(Session session, long buildingId) {
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaUpdate<Occupant> update = cb.createCriteriaUpdate(Occupant.class);
@@ -170,21 +188,7 @@ public class OccupantDao {
         session.createMutationQuery(update).executeUpdate();
     }
 
-    public static void restoreOccupant(long id) {
-        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            Transaction transaction = session.beginTransaction();
-            int updatedRows = session.createQuery("update Occupant o set o.deleted = false where o.id = :id")
-                    .setParameter("id", id)
-                    .executeUpdate();
-            if (updatedRows == 0) {
-                transaction.rollback();
-                throw new EntityNotFoundException("Occupant with id " + id + " not found.");
-            }
-            transaction.commit();
-        }
-    }
-
-    public static List<OccupantDto> findOccupantsByBuildingOrderByNameAsc(long buildingId) {
+    public static List<OccupantDto> occupantsFindByBuildingOrderByNameAsc(long buildingId) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             CriteriaBuilder cb = session.getCriteriaBuilder();
             CriteriaQuery<OccupantDto> cr = cb.createQuery(OccupantDto.class);
@@ -209,7 +213,7 @@ public class OccupantDao {
         }
     }
 
-    public static List<OccupantDto> findOccupantsByBuildingOrderByAgeDesc(long buildingId) {
+    public static List<OccupantDto> occupantsFindByBuildingOrderByAgeDesc(long buildingId) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             CriteriaBuilder cb = session.getCriteriaBuilder();
             CriteriaQuery<OccupantDto> cr = cb.createQuery(OccupantDto.class);

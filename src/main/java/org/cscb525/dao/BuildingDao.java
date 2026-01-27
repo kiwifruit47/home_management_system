@@ -10,6 +10,7 @@ import org.cscb525.dto.building.UpdateBuildingDto;
 import org.cscb525.entity.Building;
 import org.cscb525.entity.Company;
 import org.cscb525.entity.Employee;
+import org.cscb525.exceptions.NotFoundException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -23,7 +24,7 @@ public class BuildingDao {
             Employee employee = session.get(Employee.class, buildingDto.getEmployeeId());
 
             if (employee == null) {
-                throw new EntityNotFoundException("No employee with id " + buildingDto.getEmployeeId() + " found.");
+                throw new NotFoundException(Employee.class, buildingDto.getEmployeeId());
             }
 
             Building building = new Building();
@@ -45,7 +46,7 @@ public class BuildingDao {
         }
     }
 
-    public void updateBuilding(UpdateBuildingDto buildingDto) {
+    public static void updateBuilding(UpdateBuildingDto buildingDto) {
         Transaction transaction = null;
 
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
@@ -53,9 +54,7 @@ public class BuildingDao {
 
             Building building = session.get(Building.class, buildingDto.getId());
             if (building == null || building.isDeleted()) {
-                throw new EntityNotFoundException(
-                        "No active building with id " + buildingDto.getId() + " found."
-                );
+                throw new NotFoundException(Building.class, buildingDto.getId());
             }
 
             building.setMonthlyTaxPerPerson(buildingDto.getMonthlyTaxPerPerson());
@@ -164,18 +163,22 @@ public class BuildingDao {
         session.createMutationQuery(update).executeUpdate();
     }
 
-    public static void restoreBuilding(long id) {
-        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            Transaction transaction = session.beginTransaction();
-            int updatedRows = session.createQuery("update Building b set b.deleted = false where b.id = :id")
-                    .setParameter("id", id)
-                    .executeUpdate();
-            if (updatedRows == 0) {
-                transaction.rollback();
-                throw new EntityNotFoundException("Building with id " + id + " not found.");
-            }
-            transaction.commit();
-        }
+    public static void restoreAllBuildingsByCompany(Session session, long companyId) {
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaUpdate<Building> update = cb.createCriteriaUpdate(Building.class);
+        Root<Building> root = update.from(Building.class);
+
+        Join<Building, Employee> employee = root.join("employee");
+        Join<Employee, Company> company = employee.join("company");
+
+        update.set(root.get("deleted"), false)
+                .where(
+                        cb.and(
+                                cb.equal(company.get("id"), companyId),
+                                cb.isTrue(root.get("deleted"))
+                        )
+                );
+        session.createMutationQuery(update).executeUpdate();
     }
 
     public static long findAllBuildingCountByCompany(long companyId) {

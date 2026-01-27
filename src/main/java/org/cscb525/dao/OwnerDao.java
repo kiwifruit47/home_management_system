@@ -7,6 +7,7 @@ import org.cscb525.config.SessionFactoryUtil;
 import org.cscb525.dto.owner.CreateOwnerDto;
 import org.cscb525.dto.owner.OwnerDto;
 import org.cscb525.entity.*;
+import org.cscb525.exceptions.NotFoundException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -33,7 +34,7 @@ public class OwnerDao {
             );
 
             if (owner == null || owner.isDeleted()) {
-                throw new EntityNotFoundException("Active owner with id " + ownerId + " not found.");
+                throw new NotFoundException(Owner.class, ownerId);
             }
             owner.setName(name);
 
@@ -137,6 +138,25 @@ public class OwnerDao {
         session.createMutationQuery(update).executeUpdate();
     }
 
+    public static void restoreAllOwnersByCompany(Session session, long companyId) {
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaUpdate<Owner> update = cb.createCriteriaUpdate(Owner.class);
+        Root<Owner> root = update.from(Owner.class);
+
+        Join<Owner, Apartment> apartment = root.join("apartment");
+        Join<Apartment, Building> building = apartment.join("building");
+        Join<Building, Employee> employee = building.join("employee");
+        Join<Employee, Company> company = employee.join("company");
+
+        update.set(root.get("deleted"), false)
+                .where(cb.and(
+                        cb.equal(company.get("id"), companyId),
+                        cb.isTrue(root.get("deleted"))
+                ));
+
+        session.createMutationQuery(update).executeUpdate();
+    }
+
     public static void deleteAllOwnersByBuilding(Session session, long buildingId) {
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaUpdate<Owner> update = cb.createCriteriaUpdate(Owner.class);
@@ -152,20 +172,6 @@ public class OwnerDao {
                 ));
 
         session.createMutationQuery(update).executeUpdate();
-    }
-
-    public static void restoreOwner(long id) {
-        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            Transaction transaction = session.beginTransaction();
-            int updatedRows = session.createQuery("update Owner o set o.deleted = false where o.id = :id")
-                    .setParameter("id", id)
-                    .executeUpdate();
-            if (updatedRows == 0) {
-                transaction.rollback();
-                throw new EntityNotFoundException("owner with id " + id + " not found.");
-            }
-            transaction.commit();
-        }
     }
 
     public static List<OwnerDto> findAllOwnersByApartment(long apartmentId) {

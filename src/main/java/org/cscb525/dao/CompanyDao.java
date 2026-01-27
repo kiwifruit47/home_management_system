@@ -100,19 +100,10 @@ public class CompanyDao {
                 .executeUpdate();
     }
 
-    //throws exception if nothing is restored (no company with such id found)
-    public static void restoreCompany(long id) {
-        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            Transaction transaction = session.beginTransaction();
-            int updatedRows = session.createQuery("update Company c set c.deleted = false where c.id = :id")
-                    .setParameter("id", id)
-                    .executeUpdate();
-            if (updatedRows == 0) {
-                transaction.rollback();
-                throw new EntityNotFoundException("No company with id " + id + " found.");
-            }
-            transaction.commit();
-        }
+    public static void restoreCompany(Session session, long id) {
+        session.createQuery("update Company c set c.deleted = false where c.id = :id")
+                .setParameter("id", id)
+                .executeUpdate();
     }
 
     public static List<CompanyIncomeDto> companiesOrderByIncomeDesc() {
