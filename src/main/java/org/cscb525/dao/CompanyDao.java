@@ -8,6 +8,7 @@ import org.cscb525.dto.company.CompanyDto;
 import org.cscb525.dto.company.CompanyIncomeDto;
 import org.cscb525.dto.company.CreateCompanyDto;
 import org.cscb525.entity.*;
+import org.cscb525.exceptions.NotFoundException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -54,24 +55,28 @@ public class CompanyDao {
                     ));
             return session.createQuery(cr).getSingleResult();
         } catch (NoResultException e) {
-            throw new EntityNotFoundException("No active company with id " + id + " found.");
+            throw new NotFoundException(Company.class, id, e);
         }
     }
 
     public static CompanyDto findCompanyDtoById(Session session, long id) {
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaQuery<CompanyDto> cr = cb.createQuery(CompanyDto.class);
-        Root<Company> root = cr.from(Company.class);
+        try {
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<CompanyDto> cr = cb.createQuery(CompanyDto.class);
+            Root<Company> root = cr.from(Company.class);
 
-        cr.select(cb.construct(
-                        CompanyDto.class,
-                        root.get("name")
-                ))
-                .where(cb.and(
-                        cb.equal(root.get("id"), id),
-                        cb.isFalse(root.get("deleted"))
-                ));
-        return session.createQuery(cr).getSingleResult();
+            cr.select(cb.construct(
+                            CompanyDto.class,
+                            root.get("name")
+                    ))
+                    .where(cb.and(
+                            cb.equal(root.get("id"), id),
+                            cb.isFalse(root.get("deleted"))
+                    ));
+            return session.createQuery(cr).getSingleResult();
+        } catch (NoResultException e) {
+            throw new NotFoundException(Company.class, id, e);
+        }
     }
 
     public static List<CompanyDto> findAllCompanies() {

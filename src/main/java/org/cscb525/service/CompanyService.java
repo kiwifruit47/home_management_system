@@ -9,6 +9,8 @@ import org.cscb525.dto.company.CompanyDto;
 import org.cscb525.dto.company.CompanyIncomeDto;
 import org.cscb525.dto.company.CreateCompanyDto;
 import org.cscb525.dto.employee.EmployeeDto;
+import org.cscb525.entity.Company;
+import org.cscb525.exceptions.EmptyListException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -25,11 +27,15 @@ public class CompanyService {
     }
 
     public List<CompanyDto> getAllCompanies() {
-        return CompanyDao.findAllCompanies();
+        List<CompanyDto> companies = CompanyDao.findAllCompanies();
+        if (companies.isEmpty()) throw new EmptyListException(Company.class);
+        return companies;
     }
 
     public List<CompanyIncomeDto> getCompaniesOrderedByIncome() {
-        return CompanyDao.companiesOrderByIncomeDesc();
+        List<CompanyIncomeDto> companies = CompanyDao.companiesOrderByIncomeDesc();
+        if (companies.isEmpty()) throw new EmptyListException(Company.class);
+        return companies;
     }
 
     public CompanyDto changeCompanyName(long companyId, String name) {
@@ -71,7 +77,7 @@ public class CompanyService {
     }
 
     public void signNewContractForBuilding(long companyId, @Valid CreateBuildingRequest createBuildingRequest) {
-        long employeeId = EmployeeDao.findEmployeeWithSmallestBuildingCountByCompany(companyId);
+        long employeeId = EmployeeDao.findEmployeeIdWithSmallestBuildingCountByCompany(companyId);
         CreateBuildingDto createBuildingDto = new CreateBuildingDto(
                 createBuildingRequest.getAddress(),
                 createBuildingRequest.getFloors(),

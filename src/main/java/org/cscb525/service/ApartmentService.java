@@ -14,6 +14,7 @@ import org.cscb525.dto.owner.OwnerDto;
 import org.cscb525.entity.Apartment;
 import org.cscb525.entity.Occupant;
 import org.cscb525.entity.Owner;
+import org.cscb525.exceptions.NotFoundException;
 import org.cscb525.service.util.PetUpdateType;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -44,8 +45,12 @@ public class ApartmentService {
             Owner owner = OwnerDao.findOwnerById(session, ownerId);
             OwnerDto removedOwnerDto = OwnerDao.findOwnerDtoById(session, ownerId);
 
-            if (apartment == null || owner == null || apartment.isDeleted() || owner.isDeleted()) {
-                throw new EntityNotFoundException("Apartment or owner not found or active.");
+            if (apartment == null || apartment.isDeleted()) {
+                throw new NotFoundException(Apartment.class, apartmentId);
+            }
+
+            if (owner == null || owner.isDeleted()) {
+                throw new NotFoundException(Owner.class, ownerId);
             }
 
             if (apartment.getOwners().contains(owner)) {

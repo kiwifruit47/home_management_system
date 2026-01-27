@@ -1,5 +1,7 @@
 package org.cscb525.service;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import org.cscb525.config.SessionFactoryUtil;
 import org.cscb525.dao.ApartmentDao;
 import org.cscb525.dao.MonthlyApartmentTaxDao;
@@ -7,6 +9,9 @@ import org.cscb525.dto.monthlyApartmentTax.CalculateMonthlyApartmentTaxDto;
 import org.cscb525.dto.monthlyApartmentTax.CreateMonthlyApartmentTaxDto;
 import org.cscb525.dto.monthlyApartmentTax.MonthlyApartmentTaxDto;
 import org.cscb525.dto.monthlyApartmentTax.MonthlyApartmentTaxEmployeeDto;
+import org.cscb525.entity.Apartment;
+import org.cscb525.entity.MonthlyApartmentTax;
+import org.cscb525.exceptions.EmptyListException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -22,31 +27,52 @@ public class MonthlyApartmentTaxService {
     }
 
     public List<MonthlyApartmentTaxDto> getAllMonthlyApartmentTaxes() {
-        return MonthlyApartmentTaxDao.findAllMonthlyApartmentTaxes();
+        List<MonthlyApartmentTaxDto> taxes =
+                MonthlyApartmentTaxDao.findAllMonthlyApartmentTaxes();
+        if (taxes.isEmpty()) throw new EmptyListException(MonthlyApartmentTax.class);
+        return taxes;
     }
 
     public List<MonthlyApartmentTaxEmployeeDto> getAllPaidMonthlyApartmentTaxesByCompany(long companyId) {
-        return MonthlyApartmentTaxDao.findMonthlyApartmentTaxesByCompany(companyId, true);
+        List<MonthlyApartmentTaxEmployeeDto> taxes =
+                MonthlyApartmentTaxDao.findMonthlyApartmentTaxesByCompany(companyId, true);
+        if (taxes.isEmpty()) throw new EmptyListException(MonthlyApartmentTax.class);
+        return taxes;
     }
 
     public List<MonthlyApartmentTaxEmployeeDto> getAllUnpaidMonthlyApartmentTaxesByCompany(long companyId) {
-        return MonthlyApartmentTaxDao.findMonthlyApartmentTaxesByCompany(companyId, false);
+        List<MonthlyApartmentTaxEmployeeDto> taxes =
+                MonthlyApartmentTaxDao.findMonthlyApartmentTaxesByCompany(companyId, false);
+        if (taxes.isEmpty()) throw new EmptyListException(MonthlyApartmentTax.class);
+        return taxes;
     }
 
     public List<MonthlyApartmentTaxDto> getAllPaidMonthlyApartmentTaxesByEmployee(long employeeId) {
-        return MonthlyApartmentTaxDao.findMonthlyApartmentTaxesByEmployee(employeeId, true);
+        List<MonthlyApartmentTaxDto> taxes =
+                MonthlyApartmentTaxDao.findMonthlyApartmentTaxesByEmployee(employeeId, true);
+        if (taxes.isEmpty()) throw new EmptyListException(MonthlyApartmentTax.class);
+        return taxes;
     }
 
     public List<MonthlyApartmentTaxDto> getAllUnpaidMonthlyApartmentTaxesByEmployee(long employeeId) {
-        return MonthlyApartmentTaxDao.findMonthlyApartmentTaxesByEmployee(employeeId, false);
+        List<MonthlyApartmentTaxDto> taxes =
+                MonthlyApartmentTaxDao.findMonthlyApartmentTaxesByEmployee(employeeId, false);
+        if (taxes.isEmpty()) throw new EmptyListException(MonthlyApartmentTax.class);
+        return taxes;
     }
 
     public List<MonthlyApartmentTaxDto> getAllPaidMonthlyApartmentTaxesByBuilding(long companyId) {
-        return MonthlyApartmentTaxDao.findMonthlyApartmentTaxesByBuilding(companyId, true);
+        List<MonthlyApartmentTaxDto> taxes =
+                MonthlyApartmentTaxDao.findMonthlyApartmentTaxesByBuilding(companyId, true);
+        if (taxes.isEmpty()) throw new EmptyListException(MonthlyApartmentTax.class);
+        return taxes;
     }
 
     public List<MonthlyApartmentTaxDto> getAllUnpaidMonthlyApartmentTaxesByBuilding(long buildingId) {
-        return MonthlyApartmentTaxDao.findMonthlyApartmentTaxesByBuilding(buildingId, false);
+        List<MonthlyApartmentTaxDto> taxes =
+                MonthlyApartmentTaxDao.findMonthlyApartmentTaxesByBuilding(buildingId, false);
+        if (taxes.isEmpty()) throw new EmptyListException(MonthlyApartmentTax.class);
+        return taxes;
     }
 
     public BigDecimal getPaidTaxesSumByApartment(long apartmentId) {
@@ -145,18 +171,28 @@ public class MonthlyApartmentTaxService {
     public static void generateMonthlyTaxesForCurrentMonth() {
         List<Long> allApartmentIds = ApartmentDao.findAllApartmentIds();
 
+        if (allApartmentIds.isEmpty()) throw new EmptyListException(Apartment.class);
+
         for (Long apartmentId : allApartmentIds) {
             if (MonthlyApartmentTaxDao.taxExistenceCheck(apartmentId, YearMonth.now())) {
                 continue;
             }
             BigDecimal paymentValue = calculateMonthlyTaxValue(apartmentId);
             CreateMonthlyApartmentTaxDto taxDto = new CreateMonthlyApartmentTaxDto(YearMonth.now(), paymentValue, apartmentId);
+            if (taxDto.getPaymentValue() == null || paymentValue.compareTo(BigDecimal.ZERO) < 0) {
+                throw new IllegalArgumentException("Payment value must be positive");
+            }
+
             MonthlyApartmentTaxDao.createMonthlyApartmentTax(taxDto);
         }
 
     }
 
     public static BigDecimal calculateMonthlyTaxValue(long apartmentId) {
+        if (apartmentId <= 0) {
+            throw new IllegalArgumentException("Apartment id must be positive");
+        }
+
         CalculateMonthlyApartmentTaxDto calculateTaxDto = MonthlyApartmentTaxDao.findDataForTaxCalc(apartmentId);
 
         BigDecimal area = calculateTaxDto.getArea();

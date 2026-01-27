@@ -12,6 +12,7 @@ import org.cscb525.dto.employee.UpdateEmployeeDto;
 import org.cscb525.entity.Building;
 import org.cscb525.entity.Company;
 import org.cscb525.entity.Employee;
+import org.cscb525.exceptions.NotFoundException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -209,7 +210,7 @@ public class EmployeeDao {
         }
     }
 
-    public static Long findEmployeeWithSmallestBuildingCountByCompany(long companyId) {
+    public static Long findEmployeeIdWithSmallestBuildingCountByCompany(long companyId) {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             CriteriaBuilder cb = session.getCriteriaBuilder();
             CriteriaQuery<Long> cr = cb.createQuery(Long.class);
@@ -230,6 +231,8 @@ public class EmployeeDao {
             return session.createQuery(cr)
                     .setMaxResults(1)
                     .getSingleResult();
+        } catch (NoResultException e) {
+            throw new NotFoundException(Employee.class, e);
         }
     }
 

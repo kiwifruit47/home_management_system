@@ -7,6 +7,7 @@ import org.cscb525.config.SessionFactoryUtil;
 import org.cscb525.dto.apartment.ApartmentDto;
 import org.cscb525.dto.apartment.CreateApartmentDto;
 import org.cscb525.entity.*;
+import org.cscb525.exceptions.NotFoundException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -25,9 +26,7 @@ public class ApartmentDao {
             );
 
             if (building == null || building.isDeleted()) {
-                throw new EntityNotFoundException(
-                        "Active building with id " + apartmentDto.getBuildingId() + " does not exist."
-                );
+                throw new NotFoundException(Building.class, apartmentDto.getBuildingId());
             }
 
             Apartment apartment = new Apartment();
@@ -55,9 +54,7 @@ public class ApartmentDao {
 
             Apartment apartment = session.get(Apartment.class, apartmentId);
             if (apartment == null || apartment.isDeleted()) {
-                throw new EntityNotFoundException(
-                        "No active apartment with id " + apartmentId + " found."
-                );
+                throw new NotFoundException(Apartment.class, apartmentId);
             }
 
             apartment.setPets(pets);
@@ -75,9 +72,7 @@ public class ApartmentDao {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             Apartment apartment = session.get(Apartment.class, apartmentId);
             if (apartment == null || apartment.isDeleted()) {
-                throw new EntityNotFoundException(
-                        "No active apartment with id " + apartmentId + " found."
-                );
+                throw new NotFoundException(Apartment.class, apartmentId);
             }
             return apartment.getPets();
         }
@@ -105,7 +100,7 @@ public class ApartmentDao {
 
             return session.createQuery(cr).getSingleResult();
         } catch (NoResultException e) {
-            throw new EntityNotFoundException("No active apartment with id " + id + " found.");
+            throw new NotFoundException(Apartment.class, id, e);
         }
     }
 
@@ -152,7 +147,7 @@ public class ApartmentDao {
                     .executeUpdate();
             if (updatedRows == 0) {
                 transaction.rollback();
-                throw new EntityNotFoundException("Apartment with id " + id + " not found.");
+                throw new NotFoundException(Apartment.class, id);
             }
             transaction.commit();
         }
