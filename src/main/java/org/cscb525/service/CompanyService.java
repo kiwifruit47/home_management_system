@@ -116,9 +116,9 @@ public class CompanyService {
     public CompanyDto deleteCompany(long companyId) {
         Transaction transaction = null;
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-
             CompanyDto deletedCompanyDto = CompanyDao.findCompanyDtoById(session, companyId);
+
+            transaction = session.beginTransaction();
 
             OwnerDao.deleteAllOwnersByCompany(session, companyId);
             OccupantDao.deleteAllOccupantsByCompany(session,companyId);

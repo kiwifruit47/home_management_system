@@ -1,6 +1,5 @@
 package org.cscb525.dao;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.criteria.*;
 import org.cscb525.config.SessionFactoryUtil;
@@ -19,7 +18,6 @@ public class ApartmentDao {
     public static void createApartment(CreateApartmentDto apartmentDto) {
         Transaction transaction = null;
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
             Building building = session.get(
                     Building.class,
                     apartmentDto.getBuildingId()
@@ -28,6 +26,8 @@ public class ApartmentDao {
             if (building == null || building.isDeleted()) {
                 throw new NotFoundException(Building.class, apartmentDto.getBuildingId());
             }
+
+            transaction = session.beginTransaction();
 
             Apartment apartment = new Apartment();
             apartment.setApartmentNumber(apartmentDto.getApartmentNumber());
@@ -50,12 +50,12 @@ public class ApartmentDao {
         Transaction transaction = null;
 
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-
             Apartment apartment = session.get(Apartment.class, apartmentId);
             if (apartment == null || apartment.isDeleted()) {
                 throw new NotFoundException(Apartment.class, apartmentId);
             }
+
+            transaction = session.beginTransaction();
 
             apartment.setPets(pets);
 
@@ -136,20 +136,6 @@ public class ApartmentDao {
                     .where(cb.isFalse(root.get("deleted")));
 
             return session.createQuery(cr).getResultList();
-        }
-    }
-
-    public static void deleteApartment(long id) {
-        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            Transaction transaction = session.beginTransaction();
-            int updatedRows = session.createQuery("update Apartment a set a.deleted = true where a.id = :id")
-                    .setParameter("id", id)
-                    .executeUpdate();
-            if (updatedRows == 0) {
-                transaction.rollback();
-                throw new NotFoundException(Apartment.class, id);
-            }
-            transaction.commit();
         }
     }
 

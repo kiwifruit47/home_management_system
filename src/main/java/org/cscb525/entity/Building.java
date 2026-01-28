@@ -36,14 +36,13 @@ public class Building extends BaseEntity {
     public Building() {
     }
 
-    public Building(String address, int floors, BigDecimal monthlyTaxPerPerson, BigDecimal monthlyTaxPerPet, BigDecimal monthlyTaxPerM2, Employee employee, Set<Apartment> apartments) {
+    public Building(String address, int floors, BigDecimal monthlyTaxPerPerson, BigDecimal monthlyTaxPerPet, BigDecimal monthlyTaxPerM2, Employee employee) {
         this.address = address;
         this.floors = floors;
         this.monthlyTaxPerPerson = monthlyTaxPerPerson;
         this.monthlyTaxPerPet = monthlyTaxPerPet;
         this.monthlyTaxPerM2 = monthlyTaxPerM2;
         this.employee = employee;
-        this.apartments = apartments;
     }
 
     public @NotBlank(message = "Address cannot be blank") String getAddress() {

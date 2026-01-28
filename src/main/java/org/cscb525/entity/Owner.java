@@ -11,7 +11,6 @@ import java.util.Set;
 public class Owner extends BaseEntity {
     @NotBlank(message = "Owner name cannot be blank")
     private String name;
-    @NotNull
     @ManyToMany
     @JoinTable(
             name = "owner_apartment",
@@ -23,9 +22,8 @@ public class Owner extends BaseEntity {
     public Owner() {
     }
 
-    public Owner(String name, Set<Apartment> apartments) {
+    public Owner(String name) {
         this.name = name;
-        this.apartments = apartments;
     }
 
     public String getName() {

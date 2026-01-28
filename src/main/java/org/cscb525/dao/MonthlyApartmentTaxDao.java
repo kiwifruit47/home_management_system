@@ -19,13 +19,14 @@ public class MonthlyApartmentTaxDao {
     public static void createMonthlyApartmentTax(CreateMonthlyApartmentTaxDto taxDto) {
         Transaction transaction = null;
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
             Apartment apartment = session.get(
                     Apartment.class,
                     taxDto.getApartmentId()
             );
-            if (apartment == null)
+            if (apartment == null || apartment.isDeleted())
                 throw new NotFoundException(Apartment.class, taxDto.getApartmentId());
+
+            transaction = session.beginTransaction();
 
             MonthlyApartmentTax monthlyApartmentTax = new MonthlyApartmentTax();
             monthlyApartmentTax.setApartment(apartment);

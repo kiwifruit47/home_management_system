@@ -20,12 +20,13 @@ public class BuildingDao {
     public static void createBuilding(CreateBuildingDto buildingDto) {
         Transaction transaction = null;
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
             Employee employee = session.get(Employee.class, buildingDto.getEmployeeId());
 
-            if (employee == null) {
+            if (employee == null || employee.isDeleted()) {
                 throw new NotFoundException(Employee.class, buildingDto.getEmployeeId());
             }
+
+            transaction = session.beginTransaction();
 
             Building building = new Building();
             building.setAddress(buildingDto.getAddress());
@@ -50,12 +51,12 @@ public class BuildingDao {
         Transaction transaction = null;
 
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-
             Building building = session.get(Building.class, buildingDto.getId());
             if (building == null || building.isDeleted()) {
                 throw new NotFoundException(Building.class, buildingDto.getId());
             }
+
+            transaction = session.beginTransaction();
 
             building.setMonthlyTaxPerPerson(buildingDto.getMonthlyTaxPerPerson());
             building.setMonthlyTaxPerM2(buildingDto.getMonthlyTaxPerM2());

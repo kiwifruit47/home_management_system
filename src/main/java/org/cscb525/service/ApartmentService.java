@@ -32,6 +32,8 @@ public class ApartmentService {
             case REMOVE -> currentPetCount--;
             case ADD -> currentPetCount++;
         }
+
+        if (currentPetCount < 0) throw new IllegalArgumentException("Pet count can't be less than 0");
         ApartmentDao.updateApartmentPets(apartmentId, currentPetCount);
 
         return ApartmentDao.findApartmentDtoById(apartmentId);

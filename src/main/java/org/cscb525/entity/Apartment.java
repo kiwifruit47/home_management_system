@@ -33,23 +33,12 @@ public class Apartment extends BaseEntity {
     public Apartment() {
     }
 
-    public Apartment(int floor, int apartmentNumber, BigDecimal area, int pets, Building building, Set<Owner> owners, Set<Occupant> occupants) {
+    public Apartment(int floor, int apartmentNumber, BigDecimal area, int pets, Building building) {
         this.floor = floor;
         this.apartmentNumber = apartmentNumber;
         this.area = area;
         this.pets = pets;
         this.building = building;
-        this.owners = owners;
-        this.occupants = occupants;
-    }
-
-    public Apartment(int floor, int apartmentNumber, BigDecimal area, int pets, Building building, Set<Owner> owners) {
-        this.floor = floor;
-        this.apartmentNumber = apartmentNumber;
-        this.area = area;
-        this.pets = pets;
-        this.building = building;
-        this.owners = owners;
     }
 
     @NotNull

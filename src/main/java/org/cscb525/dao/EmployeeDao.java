@@ -8,7 +8,6 @@ import org.cscb525.config.SessionFactoryUtil;
 import org.cscb525.dto.employee.CreateEmployeeDto;
 import org.cscb525.dto.employee.EmployeeBuildingCountDto;
 import org.cscb525.dto.employee.EmployeeDto;
-import org.cscb525.dto.employee.UpdateEmployeeDto;
 import org.cscb525.entity.Building;
 import org.cscb525.entity.Company;
 import org.cscb525.entity.Employee;
@@ -23,12 +22,13 @@ public class EmployeeDao {
     public static void createEmployee(@Valid CreateEmployeeDto createEmployeeDto) {
         Transaction transaction = null;
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
             Company company = session.get(Company.class, createEmployeeDto.getCompanyId());
 
-            if (company == null) {
-                throw new EntityNotFoundException("No company with id " + createEmployeeDto.getCompanyId() + " found.");
+            if (company == null || company.isDeleted()) {
+                throw new NotFoundException(Company.class, createEmployeeDto.getCompanyId());
             }
+
+            transaction = session.beginTransaction();
 
             Employee employee = new Employee();
             employee.setName(createEmployeeDto.getName());
