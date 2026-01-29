@@ -31,7 +31,7 @@ public class CompanyDao {
             Transaction transaction = session.beginTransaction();
             Company company = session.get(Company.class, companyId);
             if (company == null || company.isDeleted()) {
-                throw new EntityNotFoundException("No active company with id " + companyId + " found");
+                throw new NotFoundException(Company.class, companyId);
             }
 
             company.setName(name);
