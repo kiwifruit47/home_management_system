@@ -7,9 +7,9 @@ public class EmployeeBuildingCountDto {
     @Pattern(regexp = "^[A-Z][a-zA-Z ]*$", message = "Employee name has to start with capital letter and consist only of letters.")
     private final String name;
     @PositiveOrZero
-    private final int buildings;
+    private final long buildings;
 
-    public EmployeeBuildingCountDto(String name, int buildings) {
+    public EmployeeBuildingCountDto(String name, long buildings) {
         this.name = name;
         this.buildings = buildings;
     }
@@ -18,7 +18,7 @@ public class EmployeeBuildingCountDto {
         return name;
     }
 
-    public int getBuildings() {
+    public long getBuildings() {
         return buildings;
     }
 

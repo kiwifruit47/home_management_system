@@ -36,7 +36,7 @@ public class SingleCompanyIT {
 
     private long getCompanyId() {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            return session.createQuery("select id.c from Company c", Long.class)
+            return session.createQuery("select c.id from Company c", Long.class)
                     .getSingleResult();
         }
     }
@@ -60,7 +60,9 @@ public class SingleCompanyIT {
     @Test
     public void updateCompanyName_deletedCompany_throwsException() {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
+            Transaction transaction = session.beginTransaction();
             CompanyDao.deleteCompany(session, getCompanyId());
+            transaction.commit();
         }
 
         assertThrows(
@@ -77,7 +79,7 @@ public class SingleCompanyIT {
     }
 
     @Test
-    public void findCompanyDtoId_nullCompany_throwsException() {
+    public void findCompanyDtoById_nullCompany_throwsException() {
         assertThrows(
                 NotFoundException.class,
                 () -> CompanyDao.findCompanyDtoById(5L)
@@ -85,7 +87,7 @@ public class SingleCompanyIT {
     }
 
     @Test
-    public void findCompanyDtoId_deletedCompany_throwsException() {
+    public void findCompanyDtoById_deletedCompany_throwsException() {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
             CompanyDao.deleteCompany(session, getCompanyId());

@@ -79,7 +79,7 @@ public class EmployeeDao {
                     ));
             return session.createQuery(cr).getSingleResult();
         } catch (NoResultException e) {
-            throw new EntityNotFoundException("No active employee with id " + id + " found.");
+            throw new NotFoundException(Employee.class, id, e);
         }
     }
 
@@ -114,7 +114,7 @@ public class EmployeeDao {
         }
     }
     public static void deleteEmployee(Session session, long id) {
-        int updatedRows = session.createQuery("update Employee e set e.deleted = true where e.id = :id")
+        session.createQuery("update Employee e set e.deleted = true where e.id = :id")
                 .setParameter("id", id)
                 .executeUpdate();
     }
@@ -188,7 +188,7 @@ public class EmployeeDao {
                             cb.count(building)
                     ))
                     .where(cb.and(
-                            cb.equal(root.get("id"), companyId),
+                            cb.equal(company.get("id"), companyId),
                             cb.isFalse(root.get("deleted"))
                     ))
                     .groupBy(root.get("id"), root.get("name"))

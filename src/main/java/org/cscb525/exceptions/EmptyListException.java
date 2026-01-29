@@ -7,7 +7,7 @@ public class EmptyListException extends RuntimeException {
 
     private static String getPluralName(Class<?> entityClass) {
         String name = entityClass.getSimpleName();
-        String suffix = null;
+        String suffix;
         if (
                 name.endsWith("s") ||
                 name.endsWith("ch") ||

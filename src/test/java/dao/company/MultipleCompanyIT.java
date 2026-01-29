@@ -2,14 +2,15 @@ package dao.company;
 
 import org.cscb525.config.SessionFactoryUtil;
 import org.cscb525.dao.CompanyDao;
+import org.cscb525.dto.company.CompanyDto;
 import org.cscb525.dto.company.CompanyIncomeDto;
 import org.cscb525.dto.occupant.CreateOccupantDto;
-import org.cscb525.dto.occupant.OccupantDto;
 import org.cscb525.entity.Apartment;
 import org.cscb525.entity.Building;
 import org.cscb525.entity.Company;
 import org.cscb525.entity.Employee;
 import org.cscb525.service.ApartmentService;
+import org.cscb525.service.MonthlyApartmentTaxService;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.junit.jupiter.api.AfterEach;
@@ -20,6 +21,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MultipleCompanyIT {
     @BeforeEach
@@ -111,6 +113,8 @@ public class MultipleCompanyIT {
         apartmentService.addOccupantToApartment(1, occupantDto);
         apartmentService.addOccupantToApartment(2, occupantDto);
         apartmentService.addOccupantToApartment(3, occupantDto);
+
+        MonthlyApartmentTaxService.generateMonthlyTaxesForCurrentMonth();
     }
 
     @AfterEach
@@ -128,13 +132,29 @@ public class MultipleCompanyIT {
     }
 
     @Test
+    void findAllCompanies_success() {
+        List<CompanyDto> companies = CompanyDao.findAllCompanies();
+
+        assertEquals(3, companies.size());
+        assertTrue(
+                companies.stream().anyMatch(c -> c.getName().equals("Company1"))
+        );
+        assertTrue(
+                companies.stream().anyMatch(c -> c.getName().equals("Company2"))
+        );
+        assertTrue(
+                companies.stream().anyMatch(c -> c.getName().equals("Company3"))
+        );
+    }
+
+    @Test
     public void companiesOrderByIncomeDesc_success() {
         List<CompanyIncomeDto> companies = CompanyDao.companiesOrderByIncomeDesc();
 
         assertEquals(3, companies.size());
-        BigDecimal comparator = BigDecimal.ZERO;
+        BigDecimal comparator = companies.getFirst().getIncome().add(BigDecimal.ONE);
         for (CompanyIncomeDto dto : companies) {
-            assertEquals(0, dto.getIncome().compareTo(comparator));
+            assertEquals(1, comparator.compareTo(dto.getIncome()));
             comparator = dto.getIncome();
         }
     }

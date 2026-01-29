@@ -14,7 +14,7 @@ public class CalculateMonthlyApartmentTaxDto {
     private final int pets;
     @PositiveOrZero
     //above 7 years old && use elevator
-    private final int taxedOccupantCount;
+    private final long taxedOccupantCount;
     @Positive
     private final BigDecimal monthlyTaxPerPerson;
     @NotNull
@@ -24,7 +24,7 @@ public class CalculateMonthlyApartmentTaxDto {
     @Positive
     private final BigDecimal monthlyTaxPerM2;
 
-    public CalculateMonthlyApartmentTaxDto(BigDecimal area, int pets, int occupantCount, BigDecimal monthlyTaxPerPerson, BigDecimal monthlyTaxPerPet, BigDecimal monthlyTaxPerM2) {
+    public CalculateMonthlyApartmentTaxDto(BigDecimal area, int pets, long occupantCount, BigDecimal monthlyTaxPerPerson, BigDecimal monthlyTaxPerPet, BigDecimal monthlyTaxPerM2) {
         this.area = area;
         this.pets = pets;
         this.taxedOccupantCount = occupantCount;
@@ -41,7 +41,7 @@ public class CalculateMonthlyApartmentTaxDto {
         return pets;
     }
 
-    public int getTaxedOccupantCount() {
+    public long getTaxedOccupantCount() {
         return taxedOccupantCount;
     }
 
