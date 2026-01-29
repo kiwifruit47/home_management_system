@@ -8,8 +8,6 @@ import java.math.BigDecimal;
 public class UpdateBuildingDto {
     @Positive
     private final long id;
-    @Positive
-    private final int floors;
     @NotNull
     @Positive
     private final BigDecimal monthlyTaxPerPerson;
@@ -20,9 +18,8 @@ public class UpdateBuildingDto {
     @Positive
     private final BigDecimal monthlyTaxPerM2;
 
-    public UpdateBuildingDto(long id, int floors, BigDecimal monthlyTaxPerPerson, BigDecimal monthlyTaxPerPet, BigDecimal monthlyTaxPerM2) {
+    public UpdateBuildingDto(long id, BigDecimal monthlyTaxPerPerson, BigDecimal monthlyTaxPerPet, BigDecimal monthlyTaxPerM2) {
         this.id = id;
-        this.floors = floors;
         this.monthlyTaxPerPerson = monthlyTaxPerPerson;
         this.monthlyTaxPerPet = monthlyTaxPerPet;
         this.monthlyTaxPerM2 = monthlyTaxPerM2;
@@ -49,7 +46,6 @@ public class UpdateBuildingDto {
     public String toString() {
         return "UpdateBuildingDto{" +
                 "id=" + id +
-                ", floors=" + floors +
                 ", monthlyTaxPerPerson=" + monthlyTaxPerPerson +
                 ", monthlyTaxPerPet=" + monthlyTaxPerPet +
                 ", monthlyTaxPerM2=" + monthlyTaxPerM2 +

@@ -93,7 +93,7 @@ public class BuildingDao {
                     ));
             return session.createQuery(cr).getSingleResult();
         } catch (NoResultException e) {
-            throw new EntityNotFoundException("No active building with id " + id + " found.");
+            throw new NotFoundException(Building.class, id, e);
         }
     }
 
