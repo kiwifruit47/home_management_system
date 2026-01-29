@@ -118,7 +118,14 @@ public class CompanyDao {
             Join<Apartment, MonthlyApartmentTax> monthlyApartmentTax = apartment.join("monthlyApartmentTaxes", JoinType.LEFT);
 
             Expression<BigDecimal> income =
-                    cb.coalesce(cb.sum(monthlyApartmentTax.get("paymentValue")), BigDecimal.ZERO);
+                    cb.sum(
+                            cb.<BigDecimal>selectCase()
+                                    .when(
+                                            cb.isTrue(monthlyApartmentTax.get("isPaid")),
+                                            monthlyApartmentTax.get("paymentValue")
+                                    )
+                                    .otherwise(BigDecimal.ZERO)
+                    );
 
             cr.select(cb.construct(
                     CompanyIncomeDto.class,

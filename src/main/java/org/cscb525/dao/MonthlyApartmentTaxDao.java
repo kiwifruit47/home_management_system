@@ -52,7 +52,7 @@ public class MonthlyApartmentTaxDao {
                 taxId
         );
 
-        if (monthlyApartmentTax == null) {
+        if (monthlyApartmentTax == null || monthlyApartmentTax.isDeleted()) {
             throw new NotFoundException(MonthlyApartmentTax.class, taxId);
         }
 
@@ -142,7 +142,7 @@ public class MonthlyApartmentTaxDao {
     }
 
     public static void restoreMonthlyApartmentTax(Session session, long id) {
-        int updatedRows = session.createQuery("update MonthlyApartmentTax m set m.deleted = false where m.id = :id")
+        session.createQuery("update MonthlyApartmentTax m set m.deleted = false where m.id = :id")
                 .setParameter("id", id)
                 .executeUpdate();
     }
@@ -359,9 +359,14 @@ public class MonthlyApartmentTaxDao {
                     Boolean.class,
                     root.get("isPaid")
             ))
-                    .where(cb.equal(root.get("id"), taxId));
+                    .where(cb.and(
+                            cb.equal(root.get("id"), taxId),
+                            cb.isFalse(root.get("deleted"))
+                    ));
             
             return session.createQuery(cr).getSingleResult();
+        } catch (NoResultException e) {
+            throw new NotFoundException(MonthlyApartmentTax.class, taxId, e);
         }
     }
 
@@ -400,7 +405,7 @@ public class MonthlyApartmentTaxDao {
                     );
             return session.createQuery(cr).getSingleResult();
         } catch (NoResultException e) {
-            throw new EntityNotFoundException("Apartment with id " + apartmentId + " not found.");
+            throw new NotFoundException(Apartment.class, apartmentId, e);
         }
     }
 

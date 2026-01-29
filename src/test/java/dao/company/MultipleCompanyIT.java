@@ -115,6 +115,11 @@ public class MultipleCompanyIT {
         apartmentService.addOccupantToApartment(3, occupantDto);
 
         MonthlyApartmentTaxService.generateMonthlyTaxesForCurrentMonth();
+
+        MonthlyApartmentTaxService taxService = new MonthlyApartmentTaxService();
+        taxService.markTaxAsPaid(1);
+        taxService.markTaxAsPaid(2);
+        taxService.markTaxAsPaid(3);
     }
 
     @AfterEach

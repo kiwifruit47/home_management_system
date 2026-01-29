@@ -1,7 +1,5 @@
 package org.cscb525.service;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Positive;
 import org.cscb525.config.SessionFactoryUtil;
 import org.cscb525.dao.ApartmentDao;
 import org.cscb525.dao.MonthlyApartmentTaxDao;
