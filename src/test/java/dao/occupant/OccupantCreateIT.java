@@ -4,7 +4,6 @@ import org.cscb525.config.SessionFactoryUtil;
 import org.cscb525.dao.OccupantDao;
 import org.cscb525.dto.occupant.CreateOccupantDto;
 import org.cscb525.entity.*;
-import org.cscb525.exceptions.NotFoundException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.junit.jupiter.api.AfterEach;
@@ -14,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class OccupantCreateIT {
     @BeforeEach

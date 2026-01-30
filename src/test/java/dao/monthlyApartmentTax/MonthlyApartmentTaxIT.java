@@ -1,13 +1,16 @@
 package dao.monthlyApartmentTax;
 
 import org.cscb525.config.SessionFactoryUtil;
+import org.cscb525.dao.ApartmentDao;
+import org.cscb525.dao.BuildingDao;
 import org.cscb525.dao.MonthlyApartmentTaxDao;
+import org.cscb525.dto.apartment.ApartmentDto;
+import org.cscb525.dto.building.BuildingDto;
+import org.cscb525.dto.monthlyApartmentTax.CalculateMonthlyApartmentTaxDto;
 import org.cscb525.dto.monthlyApartmentTax.MonthlyApartmentTaxDto;
+import org.cscb525.dto.monthlyApartmentTax.MonthlyApartmentTaxEmployeeDto;
 import org.cscb525.dto.occupant.CreateOccupantDto;
-import org.cscb525.entity.Apartment;
-import org.cscb525.entity.Building;
-import org.cscb525.entity.Company;
-import org.cscb525.entity.Employee;
+import org.cscb525.entity.*;
 import org.cscb525.exceptions.NotFoundException;
 import org.cscb525.service.ApartmentService;
 import org.cscb525.service.MonthlyApartmentTaxService;
@@ -19,10 +22,11 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class SingleMonthlyApartmentTaxIT {
+public class MonthlyApartmentTaxIT {
     @BeforeEach
     void setup() {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
@@ -114,6 +118,13 @@ public class SingleMonthlyApartmentTaxIT {
         apartmentService.addOccupantToApartment(3, occupantDto);
 
         MonthlyApartmentTaxService.generateMonthlyTaxesForCurrentMonth();
+
+        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
+            Transaction transaction = session.beginTransaction();
+            MonthlyApartmentTaxDao.markTaxAsPaid(session, 2L, LocalDate.now());
+            transaction.commit();
+        }
+
     }
 
     @AfterEach
@@ -256,4 +267,122 @@ public class SingleMonthlyApartmentTaxIT {
                 () -> MonthlyApartmentTaxDao.findMonthlyApartmentTaxPaymentStatus(1L)
         );
     }
+
+    @Test
+    public void findAllMonthlyApartmentTaxes_success() {
+        List<MonthlyApartmentTaxDto> taxes = MonthlyApartmentTaxDao.findAllMonthlyApartmentTaxes();
+        assertEquals(3, taxes.size());
+    }
+
+    @Test
+    public void sumMonthlyApartmentTaxesByApartment_unpaidTaxes_success() {
+        BigDecimal sum = MonthlyApartmentTaxDao.sumMonthlyApartmentTaxesByApartment(1L, false);
+         assertEquals(0, BigDecimal.valueOf(21).compareTo(sum));
+    }
+
+    @Test
+    public void sumMonthlyApartmentTaxesByApartment_paidTaxes_success() {
+        BigDecimal sum = MonthlyApartmentTaxDao.sumMonthlyApartmentTaxesByApartment(2L, true);
+        assertEquals(0, BigDecimal.valueOf(31).compareTo(sum));
+    }
+
+    @Test
+    public void sumMonthlyApartmentTaxesByBuilding_unpaidTaxes_success() {
+        BigDecimal sum = MonthlyApartmentTaxDao.sumMonthlyApartmentTaxesByBuilding(1L, false);
+        assertEquals(0, BigDecimal.valueOf(21).compareTo(sum));
+    }
+
+    @Test
+    public void sumMonthlyApartmentTaxesByBuilding_paidTaxes_success() {
+        BigDecimal sum = MonthlyApartmentTaxDao.sumMonthlyApartmentTaxesByBuilding(2L, true);
+        assertEquals(0, BigDecimal.valueOf(31).compareTo(sum));
+    }
+
+    @Test
+    public void sumMonthlyApartmentTaxesByEmployee_unpaidTaxes_success() {
+        BigDecimal sum = MonthlyApartmentTaxDao.sumMonthlyApartmentTaxesByEmployee(1L, false);
+        assertEquals(0, BigDecimal.valueOf(21).compareTo(sum));
+    }
+
+    @Test
+    public void sumMonthlyApartmentTaxesByEmployee_paidTaxes_success() {
+        BigDecimal sum = MonthlyApartmentTaxDao.sumMonthlyApartmentTaxesByEmployee(2L, true);
+        assertEquals(0, BigDecimal.valueOf(31).compareTo(sum));
+    }
+
+    @Test
+    public void sumMonthlyApartmentTaxesByCompany_unpaidTaxes_success() {
+        BigDecimal sum = MonthlyApartmentTaxDao.sumMonthlyApartmentTaxesByCompany(1L, false);
+        assertEquals(0, BigDecimal.valueOf(21).compareTo(sum));
+    }
+
+    @Test
+    public void sumMonthlyApartmentTaxesByCompany_paidTaxes_success() {
+        BigDecimal sum = MonthlyApartmentTaxDao.sumMonthlyApartmentTaxesByCompany(2L, true);
+        assertEquals(0, BigDecimal.valueOf(31).compareTo(sum));
+    }
+
+    @Test
+    public  void findMonthlyApartmentTaxesByCompany_unpaidTaxes_Success() {
+        List<MonthlyApartmentTaxEmployeeDto> taxes = MonthlyApartmentTaxDao.findMonthlyApartmentTaxesByCompany(2L, false);
+        assertEquals(0, taxes.size());
+    }
+
+    @Test
+    public  void findMonthlyApartmentTaxesByCompany_paidTaxes_Success() {
+        List<MonthlyApartmentTaxEmployeeDto> taxes = MonthlyApartmentTaxDao.findMonthlyApartmentTaxesByCompany(2L, true);
+        assertEquals(1, taxes.size());
+    }
+
+    @Test
+    public  void findMonthlyApartmentTaxesByEmployee_unpaidTaxes_Success() {
+        List<MonthlyApartmentTaxDto> taxes = MonthlyApartmentTaxDao.findMonthlyApartmentTaxesByEmployee(2L, false);
+        assertEquals(0, taxes.size());
+    }
+
+    @Test
+    public  void findMonthlyApartmentTaxesByEmployee_paidTaxes_Success() {
+        List<MonthlyApartmentTaxDto> taxes = MonthlyApartmentTaxDao.findMonthlyApartmentTaxesByEmployee(2L, true);
+        assertEquals(1, taxes.size());
+    }
+
+    @Test
+    public  void findMonthlyApartmentTaxesByBuilding_unpaidTaxes_Success() {
+        List<MonthlyApartmentTaxDto> taxes = MonthlyApartmentTaxDao.findMonthlyApartmentTaxesByBuilding(2L, false);
+        assertEquals(0, taxes.size());
+    }
+
+    @Test
+    public  void findMonthlyApartmentTaxesBuilding_paidTaxes_Success() {
+        List<MonthlyApartmentTaxDto> taxes = MonthlyApartmentTaxDao.findMonthlyApartmentTaxesByBuilding(2L, true);
+        assertEquals(1, taxes.size());
+    }
+
+    @Test
+    public void findDataForTaxCalc_success() {
+        ApartmentDto apartment = ApartmentDao.findApartmentDtoById(1L);
+        BuildingDto building = BuildingDao.findBuildingDtoById(1L);
+        List <Occupant> occupants;
+        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
+            occupants =
+                    session.createQuery(
+                            "select o from Occupant o" +
+                                    " where o.age > 7" +
+                                    " and o.usesElevator = true" +
+                                    " and o.deleted = false" +
+                                    " and o.apartment.id = 1"
+                                    , Occupant.class
+                            )
+                    .getResultList();
+        }
+
+        CalculateMonthlyApartmentTaxDto calculateTaxInfo = MonthlyApartmentTaxDao.findDataForTaxCalc(1L);
+        assertEquals(apartment.getArea(), calculateTaxInfo.getArea());
+        assertEquals(apartment.getPets(), calculateTaxInfo.getPets());
+        assertEquals(occupants.size(), calculateTaxInfo.getTaxedOccupantCount());
+        assertEquals(building.getMonthlyTaxPerPerson(), calculateTaxInfo.getMonthlyTaxPerPerson());
+        assertEquals(building.getMonthlyTaxPerPet(), calculateTaxInfo.getMonthlyTaxPerPet());
+        assertEquals(building.getMonthlyTaxPerM2(), calculateTaxInfo.getMonthlyTaxPerM2());
+    }
+
 }

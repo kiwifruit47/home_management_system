@@ -1,6 +1,5 @@
 package org.cscb525.dao;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.criteria.*;
 import org.cscb525.config.SessionFactoryUtil;
@@ -29,12 +28,12 @@ public class OccupantDao {
         Transaction transaction = null;
 
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-
             Occupant occupant = session.get(Occupant.class, occupantDto.getId());
             if (occupant == null || occupant.isDeleted()) {
                 throw new NotFoundException(Occupant.class, occupantDto.getId());
             }
+
+            transaction = session.beginTransaction();
 
             occupant.setAge(occupantDto.getAge());
             occupant.setName(occupantDto.getName());
