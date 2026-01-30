@@ -121,7 +121,7 @@ public class MultipleOccupantIT {
 
         apartmentService.addOccupantToApartment(2, occupantDto3);
         apartmentService.addOccupantToApartment(2, occupantDto4);
-        apartmentService.addOccupantToApartment(3, occupantDto5);
+        apartmentService.addOccupantToApartment(2, occupantDto5);
 
         apartmentService.addOccupantToApartment(3, occupantDto6);
         apartmentService.addOccupantToApartment(3, occupantDto7);
@@ -233,5 +233,32 @@ public class MultipleOccupantIT {
 
 
         assertEquals(0, occupants.size());
+    }
+
+    @Test
+    public void occupantsFindByBuildingOrderByNameAsc_success() {
+        List<OccupantDto> orderedOccupants = OccupantDao.occupantsFindByBuildingOrderByNameAsc(2L);
+
+        assertEquals(3, orderedOccupants.size());
+        assertEquals("Mitko", orderedOccupants.getFirst().getName());
+        assertEquals("Petko", orderedOccupants.get(1).getName());
+        assertEquals("Sasho", orderedOccupants.getLast().getName());
+
+    }
+
+    @Test
+    public void occupantsFindByBuildingOrderByAgeDesc_success() {
+        List<OccupantDto> orderedOccupants = OccupantDao.occupantsFindByBuildingOrderByAgeDesc(2L);
+
+        assertEquals(3, orderedOccupants.size());
+        assertEquals("Petko", orderedOccupants.getFirst().getName());
+        assertEquals("Mitko", orderedOccupants.get(1).getName());
+        assertEquals("Sasho", orderedOccupants.getLast().getName());
+    }
+
+    @Test
+    public void findOccupantCountByBuilding_success() {
+        Long count = OccupantDao.findOccupantCountByBuilding(2L);
+        assertEquals(3, count);
     }
 }

@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -20,7 +21,7 @@ public class Employee extends BaseEntity {
     @ManyToOne
     private Company company;
     @OneToMany(mappedBy = "employee")
-    private Set<Building> buildings;
+    private Set<Building> buildings = new HashSet<>();
 
     public Employee() {
     }

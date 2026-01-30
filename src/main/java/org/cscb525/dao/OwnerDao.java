@@ -1,6 +1,5 @@
 package org.cscb525.dao;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.criteria.*;
 import org.cscb525.config.SessionFactoryUtil;
@@ -27,7 +26,6 @@ public class OwnerDao {
     public static void updateOwnerName(long ownerId, String name) {
         Transaction transaction = null;
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
             Owner owner = session.get(
                     Owner.class,
                     ownerId
@@ -36,14 +34,12 @@ public class OwnerDao {
             if (owner == null || owner.isDeleted()) {
                 throw new NotFoundException(Owner.class, ownerId);
             }
+
+            transaction = session.beginTransaction();
+
             owner.setName(name);
 
             transaction.commit();
-        } catch (RuntimeException e) {
-            if (transaction != null && transaction.isActive()) {
-                transaction.rollback();
-            }
-            throw new RuntimeException(e);
         }
     }
 
@@ -64,7 +60,7 @@ public class OwnerDao {
 
             return session.createQuery(cr).getSingleResult();
         } catch (NoResultException e) {
-            throw new EntityNotFoundException("Owner with id " + id + " not found.");
+            throw new NotFoundException(Owner.class, id, e);
         }
     }
 
@@ -89,7 +85,7 @@ public class OwnerDao {
         return session.get(Owner.class, ownerId);
     }
 
-    public static List<OwnerDto> getAllOwners() {
+    public static List<OwnerDto> findAllOwners() {
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             CriteriaBuilder cb = session.getCriteriaBuilder();
             CriteriaQuery<OwnerDto> cr = cb.createQuery(OwnerDto.class);
@@ -113,7 +109,7 @@ public class OwnerDao {
                     .executeUpdate();
             if (updatedRows == 0) {
                 transaction.rollback();
-                throw new EntityNotFoundException("owner with id " + id + " not found.");
+                throw new NotFoundException(Owner.class, id);
             }
             transaction.commit();
         }
@@ -124,7 +120,7 @@ public class OwnerDao {
         CriteriaUpdate<Owner> update = cb.createCriteriaUpdate(Owner.class);
         Root<Owner> root = update.from(Owner.class);
 
-        Join<Owner, Apartment> apartment = root.join("apartment");
+        Join<Owner, Apartment> apartment = root.join("apartments");
         Join<Apartment, Building> building = apartment.join("building");
         Join<Building, Employee> employee = building.join("employee");
         Join<Employee, Company> company = employee.join("company");
@@ -143,7 +139,7 @@ public class OwnerDao {
         CriteriaUpdate<Owner> update = cb.createCriteriaUpdate(Owner.class);
         Root<Owner> root = update.from(Owner.class);
 
-        Join<Owner, Apartment> apartment = root.join("apartment");
+        Join<Owner, Apartment> apartment = root.join("apartments");
         Join<Apartment, Building> building = apartment.join("building");
         Join<Building, Employee> employee = building.join("employee");
         Join<Employee, Company> company = employee.join("company");
@@ -162,7 +158,7 @@ public class OwnerDao {
         CriteriaUpdate<Owner> update = cb.createCriteriaUpdate(Owner.class);
         Root<Owner> root = update.from(Owner.class);
 
-        Join<Owner, Apartment> apartment = root.join("apartment");
+        Join<Owner, Apartment> apartment = root.join("apartments");
         Join<Apartment, Building> building = apartment.join("building");
 
         update.set(root.get("deleted"), true)

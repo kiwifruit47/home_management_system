@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -17,7 +18,7 @@ public class Owner extends BaseEntity {
             joinColumns = @JoinColumn(name = "owner_id"),
             inverseJoinColumns = @JoinColumn(name = "apartment_id")
     )
-    private Set<Apartment> apartments;
+    private Set<Apartment> apartments = new HashSet<>();
 
     public Owner() {
     }

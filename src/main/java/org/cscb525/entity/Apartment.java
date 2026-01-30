@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -24,11 +25,11 @@ public class Apartment extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Building building;
     @ManyToMany(mappedBy = "apartments")
-    private Set<Owner> owners;
+    private Set<Owner> owners = new HashSet<>();
     @OneToMany(mappedBy = "apartment")
-    private Set<Occupant> occupants;
+    private Set<Occupant> occupants = new HashSet<>();
     @OneToMany(mappedBy = "apartment")
-    private Set<MonthlyApartmentTax> monthlyApartmentTaxes;
+    private Set<MonthlyApartmentTax> monthlyApartmentTaxes = new HashSet<>();
 
     public Apartment() {
     }

@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -31,7 +32,7 @@ public class Building extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Employee employee;
     @OneToMany(mappedBy = "building")
-    private Set<Apartment> apartments;
+    private Set<Apartment> apartments = new HashSet<>();
 
     public Building() {
     }

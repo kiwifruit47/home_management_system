@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -13,7 +14,7 @@ public class Company extends BaseEntity{
     @Pattern(regexp = "^[A-Z][a-zA-Z0-9 ]*$", message = "Company name must start with a capital letter and consist only of letters, numbers and spaces")
     private String name;
     @OneToMany(mappedBy = "company")
-    private Set<Employee> employees;
+    private Set<Employee> employees = new HashSet<>();
 
     public Company() {
     }

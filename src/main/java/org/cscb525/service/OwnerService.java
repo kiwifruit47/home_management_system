@@ -23,7 +23,7 @@ public class OwnerService {
     }
 
     public List<OwnerDto> getAllOwners() {
-        List<OwnerDto> owners = OwnerDao.getAllOwners();
+        List<OwnerDto> owners = OwnerDao.findAllOwners();
         if (owners.isEmpty()) throw new EmptyListException(Owner.class);
         return owners;
     }
