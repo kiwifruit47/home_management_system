@@ -77,17 +77,21 @@ public class CompanyService {
     }
 
     public void signNewContractForBuilding(long companyId, @Valid CreateBuildingRequest createBuildingRequest) {
-        long employeeId = EmployeeDao.findEmployeeIdWithSmallestBuildingCountByCompany(companyId);
-        CreateBuildingDto createBuildingDto = new CreateBuildingDto(
-                createBuildingRequest.getAddress(),
-                createBuildingRequest.getFloors(),
-                createBuildingRequest.getMonthlyTaxPerPerson(),
-                createBuildingRequest.getMonthlyTaxPerPet(),
-                createBuildingRequest.getMonthlyTaxPerM2(),
-                employeeId
-        );
+        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
+            long employeeId = EmployeeDao.findEmployeeIdWithSmallestBuildingCountByCompany(companyId);
+            CreateBuildingDto createBuildingDto = new CreateBuildingDto(
+                    createBuildingRequest.getAddress(),
+                    createBuildingRequest.getFloors(),
+                    createBuildingRequest.getMonthlyTaxPerPerson(),
+                    createBuildingRequest.getMonthlyTaxPerPet(),
+                    createBuildingRequest.getMonthlyTaxPerM2(),
+                    employeeId
+            );
 
-        BuildingDao.createBuilding(createBuildingDto);
+            Transaction transaction = session.beginTransaction();
+            BuildingDao.createBuilding(session, createBuildingDto);
+            transaction.commit();
+        }
     }
 
     public BuildingDto terminateContractAndDeleteBuilding(long buildingId) {

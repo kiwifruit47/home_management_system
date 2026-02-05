@@ -43,7 +43,6 @@ public class Company extends BaseEntity{
     public String toString() {
         return "Company{" +
                 "name='" + name + '\'' +
-                ", employees=" + employees +
                 "} " + super.toString();
     }
 }

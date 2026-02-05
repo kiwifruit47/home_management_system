@@ -110,7 +110,7 @@ public class ApartmentService {
 
             Apartment apartment = ApartmentDao.findApartmentById(session, apartmentId);
             if (apartment == null || apartment.isDeleted()) {
-                throw new EntityNotFoundException("Active apartment with id " + apartmentId + " not found.");
+                throw new NotFoundException(Apartment.class, apartmentId);
             }
 
             OccupantDao.createOccupant(session, occupantDto, apartmentId);
@@ -150,6 +150,10 @@ public class ApartmentService {
             }
             throw e;
         }
+    }
+
+    public ApartmentDto getApartmentById(long id) {
+        return ApartmentDao.findApartmentDtoById(id);
     }
 
     public List<ApartmentDto> getAllApartments() {

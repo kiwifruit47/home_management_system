@@ -112,8 +112,6 @@ public class Building extends BaseEntity {
                 ", monthlyTaxPerPerson=" + monthlyTaxPerPerson +
                 ", monthlyTaxPerPet=" + monthlyTaxPerPet +
                 ", monthlyTaxPerM2=" + monthlyTaxPerM2 +
-                ", employee=" + employee +
-                ", apartments=" + apartments +
                 "} " + super.toString();
     }
 }

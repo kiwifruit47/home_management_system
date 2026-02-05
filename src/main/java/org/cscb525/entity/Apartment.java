@@ -115,10 +115,6 @@ public class Apartment extends BaseEntity {
                 ", apartmentNumber=" + apartmentNumber +
                 ", area=" + area +
                 ", pets=" + pets +
-                ", building=" + building +
-                ", owners=" + owners +
-                ", occupants=" + occupants +
-                ", monthlyApartmentTaxes=" + monthlyApartmentTaxes +
                 "} " + super.toString();
     }
 }

@@ -59,8 +59,6 @@ public class Employee extends BaseEntity {
     public String toString() {
         return "Employee{" +
                 "name='" + name + '\'' +
-                ", company=" + company +
-                ", buildings=" + buildings +
                 "} " + super.toString();
     }
 }

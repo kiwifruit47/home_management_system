@@ -62,8 +62,12 @@ public class BuildingCreateIT {
                 BigDecimal.valueOf(0.01),
                 employeeId
         );
+        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
+            Transaction transaction = session.beginTransaction();
+            BuildingDao.createBuilding(session, dto);
+            transaction.commit();
+        }
 
-        BuildingDao.createBuilding(dto);
 
         Building building;
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
@@ -90,10 +94,14 @@ public class BuildingCreateIT {
                 5L
         );
 
-        assertThrows(
-                NotFoundException.class,
-                () -> BuildingDao.createBuilding(dto)
-        );
+        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
+            Transaction transaction = session.beginTransaction();
+            assertThrows(
+                    NotFoundException.class,
+                    () -> BuildingDao.createBuilding(session, dto)
+            );
+            transaction.commit();
+        }
     }
 
     @Test
@@ -119,9 +127,13 @@ public class BuildingCreateIT {
                 employeeId
         );
 
-        assertThrows(
-                NotFoundException.class,
-                () -> BuildingDao.createBuilding(dto)
-        );
+        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
+            Transaction transaction = session.beginTransaction();
+            assertThrows(
+                    NotFoundException.class,
+                    () -> BuildingDao.createBuilding(session, dto)
+            );
+            transaction.commit();
+        }
     }
 }

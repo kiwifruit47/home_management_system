@@ -17,34 +17,23 @@ import org.hibernate.Transaction;
 import java.util.List;
 
 public class BuildingDao {
-    public static void createBuilding(CreateBuildingDto buildingDto) {
-        Transaction transaction = null;
-        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            Employee employee = session.get(Employee.class, buildingDto.getEmployeeId());
+    public static void createBuilding(Session session, CreateBuildingDto buildingDto) {
+        Employee employee = session.get(Employee.class, buildingDto.getEmployeeId());
 
-            if (employee == null || employee.isDeleted()) {
-                throw new NotFoundException(Employee.class, buildingDto.getEmployeeId());
-            }
-
-            transaction = session.beginTransaction();
-
-            Building building = new Building();
-            building.setAddress(buildingDto.getAddress());
-            building.setEmployee(employee);
-            building.setFloors(buildingDto.getFloors());
-            building.setMonthlyTaxPerPerson(buildingDto.getMonthlyTaxPerPerson());
-            building.setMonthlyTaxPerM2(buildingDto.getMonthlyTaxPerM2());
-            building.setMonthlyTaxPerPet(buildingDto.getMonthlyTaxPerPet());
-
-            session.persist(building );
-
-            transaction.commit();
-        } catch (RuntimeException e) {
-            if (transaction != null && transaction.isActive()) {
-                transaction.rollback();
-            }
-            throw e;
+        if (employee == null || employee.isDeleted()) {
+            throw new NotFoundException(Employee.class, buildingDto.getEmployeeId());
         }
+
+
+        Building building = new Building();
+        building.setAddress(buildingDto.getAddress());
+        building.setEmployee(employee);
+        building.setFloors(buildingDto.getFloors());
+        building.setMonthlyTaxPerPerson(buildingDto.getMonthlyTaxPerPerson());
+        building.setMonthlyTaxPerM2(buildingDto.getMonthlyTaxPerM2());
+        building.setMonthlyTaxPerPet(buildingDto.getMonthlyTaxPerPet());
+
+        session.persist(building );
     }
 
     public static void updateBuilding(UpdateBuildingDto buildingDto) {

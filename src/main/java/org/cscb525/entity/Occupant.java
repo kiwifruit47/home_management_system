@@ -67,7 +67,6 @@ public class Occupant extends BaseEntity {
                 "age=" + age +
                 ", name='" + name + '\'' +
                 ", usesElevator=" + usesElevator +
-                ", apartment=" + apartment +
                 "} " + super.toString();
     }
 }

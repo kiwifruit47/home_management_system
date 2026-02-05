@@ -47,7 +47,6 @@ public class Owner extends BaseEntity {
     public String toString() {
         return "Owner{" +
                 "name='" + name + '\'' +
-                ", apartments=" + apartments +
                 "} " + super.toString();
     }
 }

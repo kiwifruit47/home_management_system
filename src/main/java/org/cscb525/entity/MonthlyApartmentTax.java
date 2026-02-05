@@ -89,7 +89,6 @@ public class MonthlyApartmentTax extends BaseEntity{
                 ", isPaid=" + isPaid +
                 ", dateOfPayment=" + dateOfPayment +
                 ", paymentValue=" + paymentValue +
-                ", apartment=" + apartment +
                 "} " + super.toString();
     }
 }
