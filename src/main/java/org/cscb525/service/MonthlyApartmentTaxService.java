@@ -20,7 +20,7 @@ import java.time.YearMonth;
 import java.util.List;
 
 public class MonthlyApartmentTaxService {
-    public MonthlyApartmentTaxDto getMonthlyApartmentTax(long taxId) {
+    public MonthlyApartmentTaxDto getMonthlyApartmentTaxById(long taxId) {
         return MonthlyApartmentTaxDao.findMonthlyApartmentTaxDtoById(taxId);
     }
 

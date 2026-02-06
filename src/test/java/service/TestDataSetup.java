@@ -13,6 +13,7 @@ import org.hibernate.Transaction;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class TestDataSetup {
     public static void setupData() {
@@ -274,12 +275,16 @@ public class TestDataSetup {
         List<CreateOccupantDto> occupants = new ArrayList<>();
 
         String[] occupantNames = {"Mihail", "Stanislav", "Miroslav", "Borislav", "Lyubomir", "Radoslav", "Boyan", "Tsvetan", "Konstantin", "Vladimir", "Marin", "Blagovest", "Nayden", "Samuil", "Bogdan", "Sava", "Grigor", "Kamen", "Iliyan", "Evgeni", "Grozdan", "Parvan", "Velyo", "Prodan", "Yavor", "Yasen", "Zlatin", "Kosta", "Damyan", "Neofit", "Zhelyazko", "Mihail", "Andrey", "Dragomir", "Asparuh", "Tervel", "Krum", "Zahari", "Zdravko", "Zhivko", "Mladen", "Ognyan", "Hristiyan", "Delyan", "Genadi", "Ekaterina", "Mariyka", "Galina", "Valentina", "Gabriela", "Simona", "Yoana", "Daria", "Tanya", "Iva", "Boryana", "Albena", "Svetla", "Aneliya", "Denitsa", "Kameliya", "Siana", "Stanka", "Hristina", "Zlatka", "Biliana", "Radka", "Milena", "Viktoriya", "Svetlana", "Nikolina", "Raina", "Boyka", "Iglika", "Iskra", "Elitsa", "Kalina", "Ralitsa", "Vessela", "Temenuzhka", "Tsveta", "Todorka", "Vasilka", "Zornitsa", "Ognyana", "Blaguna", "Fidanka", "Evdokiya", "Aneta", "Bisera"};
+
+        Random random = new Random();
+
         for (int i = 0, j = 0; i < 90; i++, j+=5) {
             String name = occupantNames[i];
+            int age = 5 + random.nextInt(86);
             boolean usesElevator = i % 10 != 0;
 
             occupants.add(
-                    new CreateOccupantDto(j, name, usesElevator)
+                    new CreateOccupantDto(age, name, usesElevator)
             );
         }
 
