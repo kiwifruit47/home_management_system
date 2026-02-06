@@ -128,19 +128,20 @@ public class ApartmentService {
         Transaction transaction = null;
 
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-
             Apartment apartment = ApartmentDao.findApartmentById(session, apartmentId);
             Occupant occupant = OccupantDao.findOccupantById(session, occupantId);
-            OccupantDto deletededOccupantDto = OccupantDao.findOccupantDtoById(session, occupantId);
-
-            if (apartment == null || occupant == null || apartment.isDeleted() || occupant.isDeleted()) {
-                throw new EntityNotFoundException("Apartment or occupant not found or active.");
+            if (apartment == null || apartment.isDeleted()) {
+                throw new NotFoundException(Apartment.class, apartmentId);
+            }
+            if (occupant == null || occupant.isDeleted()) {
+                throw new NotFoundException(Occupant.class, occupantId);
             }
 
+            OccupantDto deletededOccupantDto = OccupantDao.findOccupantDtoById(session, occupantId);
+
+            transaction = session.beginTransaction();
             apartment.getOccupants().remove(occupant);
             OccupantDao.deleteOccupant(occupantId);
-
             transaction.commit();
 
             return deletededOccupantDto;
