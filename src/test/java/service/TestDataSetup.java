@@ -295,7 +295,8 @@ public class TestDataSetup {
             apartmentService.addOccupantToApartment(apartmentId, occupants.get(i));
         }
 
-        MonthlyApartmentTaxService.generateMonthlyTaxesForCurrentMonth();
+        MonthlyApartmentTaxService taxService = new MonthlyApartmentTaxService();
+        taxService.generateMonthlyTaxesForCurrentMonth();
     }
 
     public static void clearDB() {

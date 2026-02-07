@@ -117,7 +117,8 @@ public class MonthlyApartmentTaxIT {
         apartmentService.addOccupantToApartment(2, occupantDto);
         apartmentService.addOccupantToApartment(3, occupantDto);
 
-        MonthlyApartmentTaxService.generateMonthlyTaxesForCurrentMonth();
+        MonthlyApartmentTaxService taxService = new MonthlyApartmentTaxService();
+        taxService.generateMonthlyTaxesForCurrentMonth();
 
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();

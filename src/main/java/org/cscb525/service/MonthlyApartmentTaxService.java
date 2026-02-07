@@ -166,7 +166,7 @@ public class MonthlyApartmentTaxService {
     }
 
 
-    public static void generateMonthlyTaxesForCurrentMonth() {
+    public void generateMonthlyTaxesForCurrentMonth() {
         List<Long> allApartmentIds = ApartmentDao.findAllApartmentIds();
 
         if (allApartmentIds.isEmpty()) throw new EmptyListException(Apartment.class);

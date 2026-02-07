@@ -1,4 +1,4 @@
-package org.cscb525.service.util.exporter;
+package org.cscb525.service.util;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;

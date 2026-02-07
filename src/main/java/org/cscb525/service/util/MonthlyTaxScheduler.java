@@ -2,37 +2,46 @@ package org.cscb525.service.util;
 
 import org.cscb525.service.MonthlyApartmentTaxService;
 
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class MonthlyTaxScheduler {
-    private static final ScheduledExecutorService scheduler =
-            Executors.newSingleThreadScheduledExecutor();
 
-    public static void start() {
+    private final ScheduledExecutorService scheduler;
+    private final MonthlyApartmentTaxService taxService;
+    private final Clock clock;
+
+    public MonthlyTaxScheduler(
+            MonthlyApartmentTaxService taxService,
+            Clock clock
+    ) {
+        this.scheduler = Executors.newSingleThreadScheduledExecutor();
+        this.taxService = taxService;
+        this.clock = clock;
+    }
+
+    public void start() {
         long initialDelay = computeInitialDelayToNextMidnight();
         long period = TimeUnit.DAYS.toSeconds(1);
 
         scheduler.scheduleAtFixedRate(
-                MonthlyTaxScheduler::runIfFirstDayOfMonth,
+                this::runIfFirstDayOfMonth,
                 initialDelay,
                 period,
                 TimeUnit.SECONDS
         );
     }
 
-    private static void runIfFirstDayOfMonth() {
-        if (LocalDate.now().getDayOfMonth() == 1) {
-            MonthlyApartmentTaxService.generateMonthlyTaxesForCurrentMonth();
+    public void runIfFirstDayOfMonth() {
+        if (LocalDate.now(clock).getDayOfMonth() == 1) {
+            taxService.generateMonthlyTaxesForCurrentMonth();
         }
     }
 
-    private static long computeInitialDelayToNextMidnight() {
-        LocalDateTime now = LocalDateTime.now();
+    public long computeInitialDelayToNextMidnight() {
+        LocalDateTime now = LocalDateTime.now(clock);
         LocalDateTime nextMidnight = now
                 .plusDays(1)
                 .withHour(0)
