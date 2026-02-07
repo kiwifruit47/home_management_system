@@ -15,7 +15,7 @@ import java.time.YearMonth;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MonthlyTaxReceiptTxtExporterTest {
-    private final Path path = Path.of("/Users/victoriadimitrova/Documents/Java & DB/home_management_system/receipts/receipt_2026-02_1.txt");
+    private final Path path = Path.of("/Users/victoriadimitrova/Documents/Java & DB/home_management_system/receipts/receipt_2026-02_Test address_1.txt");
 
 
     @AfterEach

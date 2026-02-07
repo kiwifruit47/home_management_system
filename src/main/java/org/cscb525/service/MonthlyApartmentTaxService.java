@@ -3,10 +3,7 @@ package org.cscb525.service;
 import org.cscb525.config.SessionFactoryUtil;
 import org.cscb525.dao.ApartmentDao;
 import org.cscb525.dao.MonthlyApartmentTaxDao;
-import org.cscb525.dto.monthlyApartmentTax.CalculateMonthlyApartmentTaxDto;
-import org.cscb525.dto.monthlyApartmentTax.CreateMonthlyApartmentTaxDto;
-import org.cscb525.dto.monthlyApartmentTax.MonthlyApartmentTaxDto;
-import org.cscb525.dto.monthlyApartmentTax.MonthlyApartmentTaxEmployeeDto;
+import org.cscb525.dto.monthlyApartmentTax.*;
 import org.cscb525.entity.Apartment;
 import org.cscb525.entity.MonthlyApartmentTax;
 import org.cscb525.exceptions.EmptyListException;
@@ -147,7 +144,7 @@ public class MonthlyApartmentTaxService {
         }
     }
 
-    public MonthlyApartmentTaxDto markTaxAsPaid(long taxId) {
+    public MonthlyApartmentTaxDto markTaxAsPaidAndSaveReceipt(long taxId) {
         Transaction transaction = null;
         try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
@@ -155,7 +152,12 @@ public class MonthlyApartmentTaxService {
             MonthlyApartmentTaxDao.markTaxAsPaid(session, taxId, LocalDate.now());
             MonthlyApartmentTaxDto taxDto = MonthlyApartmentTaxDao.findMonthlyApartmentTaxDtoById(session, taxId);
 
+            MonthlyApartmentTaxReceiptDto receiptDto = MonthlyApartmentTaxDao.findPaidMonthlyApartmentTaxInfo(session, taxId);
+
             transaction.commit();
+
+            ExportService.exportReceipt(receiptDto);
+
             return taxDto;
         } catch (RuntimeException e) {
             if (transaction != null && transaction.isActive()) {

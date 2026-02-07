@@ -17,7 +17,7 @@ layers.
 - Tax payment status tracking (paid / unpaid)
 - Aggregated tax statistics by apartment, building, employee, and company
 - Scheduled monthly tax generation
-- Export of monthly tax receipts to .txt files and appendage to .xls file
+- Automatic export of monthly tax receipts to .txt files and appendage to .xls file after marking taxes as "paid"
 - Soft delete strategy
 - Integration and utility tests
 

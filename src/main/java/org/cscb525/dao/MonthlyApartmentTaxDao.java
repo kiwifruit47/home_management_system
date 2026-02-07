@@ -323,8 +323,7 @@ public class MonthlyApartmentTaxDao {
     }
 
     //for saving in file
-    public static MonthlyApartmentTaxReceiptDto findPaidMonthlyApartmentTaxInfo(long taxId) {
-        try (Session session = SessionFactoryUtil.getSessionFactory().openSession()) {
+    public static MonthlyApartmentTaxReceiptDto findPaidMonthlyApartmentTaxInfo(Session session, long taxId) {
             CriteriaBuilder cb = session.getCriteriaBuilder();
             CriteriaQuery<MonthlyApartmentTaxReceiptDto> cr = cb.createQuery(MonthlyApartmentTaxReceiptDto.class);
             Root<MonthlyApartmentTax> root = cr.from(MonthlyApartmentTax.class);
@@ -346,7 +345,6 @@ public class MonthlyApartmentTaxDao {
             ))
                     .where(cb.equal(root.get("id"), taxId));
             return session.createQuery(cr).getSingleResult();
-        }
     }
     
     public static boolean findMonthlyApartmentTaxPaymentStatus(long taxId) {

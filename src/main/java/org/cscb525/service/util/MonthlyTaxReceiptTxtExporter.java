@@ -14,6 +14,7 @@ public class MonthlyTaxReceiptTxtExporter {
 
         Path file = directory.resolve(
                 "receipt_" + receipt.getPaymentForMonth() + "_" +
+                        receipt.getAddress() + "_" +
                         receipt.getApartmentNumber() + ".txt"
         );
 

@@ -54,14 +54,14 @@ public class MonthlyApartmentTaxServiceIT {
 
     @Test
     public void markTaxAsPaid_existingTax_marksAsPaid() {
-        MonthlyApartmentTaxDto updated = taxService.markTaxAsPaid(1);
+        MonthlyApartmentTaxDto updated = taxService.markTaxAsPaidAndSaveReceipt(1);
 
         assertTrue(updated.isPaid());
     }
 
     @Test
     public void taxPaymentStatus_paidTax_returnsTrue() {
-        taxService.markTaxAsPaid(1);
+        taxService.markTaxAsPaidAndSaveReceipt(1);
 
         boolean status = taxService.taxPaymentStatus(1);
 
@@ -91,7 +91,7 @@ public class MonthlyApartmentTaxServiceIT {
 
     @Test
     public void getPaidTaxesSumByApartment_returnsNonNegativeValue() {
-        MonthlyApartmentTaxDto tax = taxService.markTaxAsPaid(1);
+        MonthlyApartmentTaxDto tax = taxService.markTaxAsPaidAndSaveReceipt(1);
 
         BigDecimal sum = taxService.getPaidTaxesSumByApartment(1);
 
@@ -101,7 +101,7 @@ public class MonthlyApartmentTaxServiceIT {
 
     @Test
     public void getPaidTaxesSumByBuilding_returnsValue() {
-        MonthlyApartmentTaxDto tax = taxService.markTaxAsPaid(1);
+        MonthlyApartmentTaxDto tax = taxService.markTaxAsPaidAndSaveReceipt(1);
 
         BigDecimal sum = taxService.getPaidTaxesSumByBuilding(1);
 
@@ -110,7 +110,7 @@ public class MonthlyApartmentTaxServiceIT {
 
     @Test
     public void getPaidTaxesSumByEmployee_returnsValue() {
-        MonthlyApartmentTaxDto tax = taxService.markTaxAsPaid(1);
+        MonthlyApartmentTaxDto tax = taxService.markTaxAsPaidAndSaveReceipt(1);
 
         BigDecimal sum = taxService.getPaidTaxesSumByEmployee(1);
 
@@ -119,7 +119,7 @@ public class MonthlyApartmentTaxServiceIT {
 
     @Test
     public void getPaidTaxesSumByCompany_returnsValue() {
-        MonthlyApartmentTaxDto tax = taxService.markTaxAsPaid(1);
+        MonthlyApartmentTaxDto tax = taxService.markTaxAsPaidAndSaveReceipt(1);
 
         BigDecimal sum = taxService.getPaidTaxesSumByBuCompany(1);
 
@@ -128,7 +128,7 @@ public class MonthlyApartmentTaxServiceIT {
 
     @Test
     public void getAllPaidMonthlyApartmentTaxesByCompany_returnsList() {
-        taxService.markTaxAsPaid(1);
+        taxService.markTaxAsPaidAndSaveReceipt(1);
 
         List<MonthlyApartmentTaxEmployeeDto> taxes =
                 taxService.getAllPaidMonthlyApartmentTaxesByCompany(1);

@@ -117,9 +117,9 @@ public class MultipleCompanyIT {
         MonthlyApartmentTaxService taxService = new MonthlyApartmentTaxService();
         taxService.generateMonthlyTaxesForCurrentMonth();
 
-        taxService.markTaxAsPaid(1);
-        taxService.markTaxAsPaid(2);
-        taxService.markTaxAsPaid(3);
+        taxService.markTaxAsPaidAndSaveReceipt(1);
+        taxService.markTaxAsPaidAndSaveReceipt(2);
+        taxService.markTaxAsPaidAndSaveReceipt(3);
     }
 
     @AfterEach
